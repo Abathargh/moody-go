@@ -2,45 +2,47 @@ package main
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
-	"github.com/mitchellh/go-homedir"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"log"
+	"moody-go/communication"
+	"moody-go/db"
+	"moody-go/db/dao"
+	"moody-go/models"
 	"os"
-)
-
-const (
-	brokAddr = "localhost"
-	port     = 1883
-	hostId   = "Main"
-	topic    = "test"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	/*
-		quit := make(chan os.Signal)
-		signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
-		modules.ConfInit()
-		config := modules.GetConfig()
-
-		fmt.Println(config)
-
-		<-quit
-		client.Disconnect(200)
-		fmt.Println("Bye!")
-	*/
-
-	home, _ := homedir.Dir()
-	db, err := gorm.Open("sqlite3", home+string(os.PathSeparator)+
-		".moody"+string(os.PathSeparator)+"moody.db")
+	conf, err := ConfInit()
 	if err != nil {
+		log.Println("an error occurred while reading the configuration file")
 		log.Fatal(err)
 	}
 
-	defer db.Close()
-	var situations []Situation
+	if err := db.Init(); err != nil {
+		log.Println("an error occurred while initializing the database")
+		log.Fatal(err)
+	}
 
-	db.Find(&situations)
-	fmt.Println("%v", situations)
+	commIfc := &communication.CommInterface{
+		ConnectedNodes: &models.ConnectedList{},
+		DataTable:      &models.DataTable{},
+	}
+	if err := commIfc.Init(conf); err != nil {
+		log.Println("an error occurred while initialing the communication interface")
+		log.Fatal(err)
+	}
+	defer commIfc.Close()
+	commIfc.Listen()
 
+	<-quit
+	if err := dao.DB.Close(); err != nil {
+		log.Println("an error occurred while attempting to close the db connection")
+		log.Fatal(err)
+	}
+	fmt.Println("Bye!")
 }

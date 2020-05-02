@@ -1,4 +1,4 @@
-package modules
+package main
 
 import (
 	"bufio"
@@ -11,20 +11,13 @@ import (
 const (
 	configFolder = ".moody"
 	configFile   = "conf"
-	dbName       = "moody.db"
 )
 
-var (
-	connectionConfig map[string]interface{}
-	connectedNodes   []Node
-	nodesInfo        map[string]interface{}
-)
-
-func ConfInit() error {
+func ConfInit() (map[string]interface{}, error) {
 	// Add check for connectionConfig != nil?
 	homeDir, dirErr := homedir.Dir()
 	if dirErr != nil {
-		return dirErr
+		return nil, dirErr
 	}
 
 	var jsonConfig string
@@ -33,38 +26,36 @@ func ConfInit() error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		dirErr := os.MkdirAll(path, os.ModePerm)
 		if dirErr != nil {
-			return dirErr
+			return nil, dirErr
 		}
 	}
 
 	file, fileErr := os.OpenFile(path+configFile, os.O_RDONLY|os.O_CREATE, 0666)
+
 	if fileErr != nil {
-		return fileErr
+		return nil, fileErr
 	}
 
 	scanner := bufio.NewScanner(file)
 	success := scanner.Scan()
-	for success == true {
+	for success {
 		jsonConfig += scanner.Text()
 		success = scanner.Scan()
 	}
 
 	scanErr := scanner.Err()
 	if scanErr != nil {
-		return scanErr
+		return nil, scanErr
 	}
 
+	connectionConfig := make(map[string]interface{})
 	if jsonErr := json.Unmarshal([]byte(jsonConfig), &connectionConfig); jsonErr != nil {
-		return jsonErr
+		return nil, jsonErr
 	}
 
-	return nil
-}
+	if err := file.Close(); err != nil {
+		return nil, err
+	}
 
-func GetConfig() map[string]interface{} {
-	return connectionConfig
-}
-
-func GetConnected() []Node {
-	return connectedNodes
+	return connectionConfig, nil
 }

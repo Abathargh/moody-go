@@ -1,29 +1,7 @@
-package modules
+package models
 
 import (
 	"sync"
-)
-
-var (
-	nodeInfo  DataTable
-	connected ConnectedList
-	onceNodes sync.Once
-	onceData  sync.Once
-)
-
-// Virtualization of the generic Node
-type Node struct {
-	Mac       string
-	Type      string
-	Group     string
-	Datatypes []string
-}
-
-type Action int
-
-const (
-	Added Action = iota
-	Removed
 )
 
 // Observer Pattern
@@ -33,13 +11,20 @@ type NodesObservable interface {
 	Notify(evt NodeEvent)
 }
 
+type Action int
+
+const (
+	Added Action = iota
+	Removed
+)
+
 type NodeEvent struct {
 	Action Action
 	Node   Node
 }
 
 type DataObservable interface {
-	Attach(evtChan chan DataEvent)
+	Attach(evtChan chan<- DataEvent)
 	Notify(evt DataEvent)
 }
 
@@ -60,13 +45,6 @@ type ConnectedList struct {
 	EvtListeners []chan NodeEvent
 }
 
-func ConnectedNodes() *ConnectedList {
-	onceNodes.Do(func() {
-		connected = ConnectedList{}
-	})
-	return &connected
-}
-
 func (list *ConnectedList) Add(node Node) {
 	list.mutex.Lock()
 	defer list.mutex.Unlock()
@@ -82,7 +60,7 @@ func (list *ConnectedList) Remove(node Node) {
 	list.mutex.Lock()
 	defer list.mutex.Unlock()
 	for index, elem := range list.nodes {
-		if elem.Mac == node.Mac {
+		if elem.MacAddress == node.MacAddress {
 			toDelete := elem
 			list.nodes[len(list.nodes)-1], list.nodes[index] = list.nodes[index], list.nodes[len(list.nodes)-1]
 			list.nodes = list.nodes[:len(list.nodes)-1]
@@ -112,15 +90,6 @@ type DataTable struct {
 	mutex        sync.Mutex
 	data         map[string]string
 	EvtListeners []chan DataEvent
-}
-
-func NodesData() *DataTable {
-	onceData.Do(func() {
-		nodeInfo = DataTable{
-			data: make(map[string]string),
-		}
-	})
-	return &nodeInfo
 }
 
 func (table *DataTable) Add(key string, value string) {
