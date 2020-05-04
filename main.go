@@ -7,7 +7,6 @@ import (
 	"moody-go/communication"
 	"moody-go/db"
 	"moody-go/db/dao"
-	"moody-go/models"
 	"os"
 	"os/signal"
 	"syscall"
@@ -22,22 +21,23 @@ func main() {
 		log.Println("an error occurred while reading the configuration file")
 		log.Fatal(err)
 	}
+	fmt.Println(conf)
 
 	if err := db.Init(); err != nil {
 		log.Println("an error occurred while initializing the database")
 		log.Fatal(err)
 	}
 
-	commIfc := &communication.CommInterface{
-		ConnectedNodes: &models.ConnectedList{},
-		DataTable:      &models.DataTable{},
-	}
-	if err := commIfc.Init(conf); err != nil {
-		log.Println("an error occurred while initialing the communication interface")
+	if err := communication.StartCommInterface(conf); err != nil {
+		log.Println("an error occurred while starting the communication interface")
 		log.Fatal(err)
 	}
-	defer commIfc.Close()
-	commIfc.Listen()
+	defer communication.CommClose()
+
+	if err := communication.CommConnect(); err != nil {
+		log.Println("an error occurred while connecting thtough communication interface")
+		log.Fatal(err)
+	}
 
 	<-quit
 	if err := dao.DB.Close(); err != nil {

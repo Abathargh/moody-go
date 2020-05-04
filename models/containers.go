@@ -42,7 +42,7 @@ type Observer interface {
 type ConnectedList struct {
 	mutex        sync.Mutex
 	nodes        []Node
-	EvtListeners []chan NodeEvent
+	EvtListeners []chan<- NodeEvent
 }
 
 func (list *ConnectedList) Add(node Node) {
@@ -73,7 +73,7 @@ func (list *ConnectedList) Remove(node Node) {
 	}
 }
 
-func (list *ConnectedList) Attach(evtChan chan NodeEvent) {
+func (list *ConnectedList) Attach(evtChan chan<- NodeEvent) {
 	list.mutex.Lock()
 	defer list.mutex.Unlock()
 	list.EvtListeners = append(list.EvtListeners, evtChan)
@@ -89,7 +89,7 @@ func (list *ConnectedList) Notify(evt NodeEvent) {
 type DataTable struct {
 	mutex        sync.Mutex
 	data         map[string]string
-	EvtListeners []chan DataEvent
+	EvtListeners []chan<- DataEvent
 }
 
 func (table *DataTable) Add(key string, value string) {
@@ -103,7 +103,7 @@ func (table *DataTable) Add(key string, value string) {
 	table.Notify(evt)
 }
 
-func (table *DataTable) Attach(evtChan chan DataEvent) {
+func (table *DataTable) Attach(evtChan chan<- DataEvent) {
 	table.mutex.Lock()
 	defer table.mutex.Unlock()
 	table.EvtListeners = append(table.EvtListeners, evtChan)

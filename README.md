@@ -6,6 +6,6 @@ version (eventlet/flask-socketio with threading/multiprocessing).
 To install clone the repo inside your GOPATH, build it and run:
 ```bash
 cd ~/go/src
-git clone https://github.com/abathargh/moody.go
+git clone https://github.com/abathargh/moody-go
 go install
 ```
