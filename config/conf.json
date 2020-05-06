@@ -1,8 +1,8 @@
 {
     "mqtt": {
-        "host": "mosquitto_broker",
+        "host": "localhost",
         "port": 1883,
-        "subTopics": ["moody/gateway/data", "moody/gateway/greeting"],
+        "subTopics": ["moody/gateway/greeting", "moody/gateway/data"],
         "pubTopics": ["moody/node/greeting","moody/actuator/rule", "moody/actuator/situation"]
     }
 }

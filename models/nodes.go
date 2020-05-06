@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"errors"
 )
 
 // Virtualization of the generic Node
@@ -18,22 +17,23 @@ func NodeFromJson(jsonData []byte) (Node, error) {
 	var node Node
 
 	if err := json.Unmarshal(jsonData, &node); err != nil {
-		return Node{}, errors.New("an error occurred while unmarshalling a greet packet")
+		return Node{}, err
 	}
 	return node, nil
 }
 
 type NodeData struct {
 	MacAddress string `json:"macaddress"`
-	Data       []byte `json:"data"`
+	Data       string `json:"data"`
 }
 
 func DataFromJson(jsonData []byte) (NodeData, error) {
+	// TODO Add validation
 	//Parse json
 	var data NodeData
 
 	if err := json.Unmarshal(jsonData, &data); err != nil {
-		return NodeData{}, errors.New("an error occurred while unmarshalling a data packet")
+		return NodeData{}, err
 	}
 	return data, nil
 }

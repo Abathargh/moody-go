@@ -121,6 +121,7 @@ func (c *MQTTClient) Close() {
 func greetCallback(_ mqtt.Client, message mqtt.Message) {
 	node, err := models.NodeFromJson(message.Payload())
 	if err != nil {
+		log.Println("an error occurred while unmarshalling a greet packet")
 		log.Println(err.Error())
 		return
 	}
@@ -132,9 +133,11 @@ func greetCallback(_ mqtt.Client, message mqtt.Message) {
 func dataCallback(_ mqtt.Client, message mqtt.Message) {
 	data, err := models.DataFromJson(message.Payload())
 	if err != nil {
+		log.Println("an error occurred while unmarshalling a data packet")
 		log.Println(err.Error())
 		return
 	}
+	fmt.Println(data)
 	topicTokens := strings.Split(message.Topic(), "/")
 	datatype := topicTokens[len(topicTokens)-1]
 	handlers.DataHandler(datatype, data)
