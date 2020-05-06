@@ -2,7 +2,7 @@ FROM golang:stretch
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
-    GOOS=linux \
+    GOOS=linux
 
 WORKDIR /build
 
