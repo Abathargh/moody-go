@@ -3,7 +3,7 @@ package dao
 import (
 	"context"
 
-	"moody-go/db/model"
+	"github.com/Abathargh/moody-go/db/model"
 
 	"github.com/smallnest/gen/dbmeta"
 )

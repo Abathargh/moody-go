@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"moody-go/models"
+	"github.com/Abathargh/moody-go/models"
 )
 
 func GreetHandler(n models.Node) {

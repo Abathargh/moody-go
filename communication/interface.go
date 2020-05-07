@@ -1,8 +1,8 @@
 package communication
 
 import (
+	"github.com/Abathargh/moody-go/models"
 	"log"
-	"moody-go/models"
 )
 
 type Client interface {

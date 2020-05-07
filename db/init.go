@@ -2,9 +2,9 @@ package db
 
 import (
 	"fmt"
+	"github.com/Abathargh/moody-go/db/dao"
 	"github.com/jinzhu/gorm"
 	"github.com/mitchellh/go-homedir"
-	"moody-go/db/dao"
 	"os"
 )
 

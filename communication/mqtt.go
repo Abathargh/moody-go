@@ -2,12 +2,12 @@ package communication
 
 import (
 	"fmt"
+	"github.com/Abathargh/moody-go/communication/handlers"
+	"github.com/Abathargh/moody-go/models"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/mitchellh/mapstructure"
 	"gopkg.in/validator.v2"
 	"log"
-	"moody-go/communication/handlers"
-	"moody-go/models"
 	"strings"
 )
 
