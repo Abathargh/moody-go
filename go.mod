@@ -1,4 +1,4 @@
-module moody-go
+module github.com/Abathargh/moody-go
 
 go 1.14
 
