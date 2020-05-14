@@ -1,4 +1,4 @@
-package model
+package models
 
 import (
 	"database/sql"
@@ -25,15 +25,14 @@ table main.node_meta {
 
 */
 
-// NodeMetum struct is a row record of the node_meta table in the main database
-type NodeMetum struct {
-	NodemetaID          sql.NullInt64  `gorm:"column:nodemeta_id;primary_key" json:"nodemeta_id"`
-	NodemetaGroup       sql.NullString `gorm:"column:nodemeta_group" json:"nodemeta_group"`
-	NodemetaDatatype    sql.NullString `gorm:"column:nodemeta_datatype" json:"nodemeta_datatype"`
-	NodemetaValuenumber sql.NullInt64  `gorm:"column:nodemeta_valuenumber" json:"nodemeta_valuenumber"`
+// NodeMeta struct is a row record of the node_meta table in the main database
+type NodeMeta struct {
+	Group       string `gorm:"column:nodemeta_group;primary_key" json:"nodemeta_group"`
+	Datatype    string `gorm:"column:nodemeta_datatype" json:"nodemeta_datatype"`
+	ValueNumber int64  `gorm:"column:nodemeta_valuenumber" json:"nodemeta_valuenumber"`
 }
 
 // TableName sets the insert table name for this struct type
-func (n *NodeMetum) TableName() string {
+func (n *NodeMeta) TableName() string {
 	return "node_meta"
 }

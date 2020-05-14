@@ -20,6 +20,7 @@ var (
 	}
 	ConnectedNodes *models.ConnectedList
 	DataTable      *models.DataTable
+	Services       map[string]*models.Service
 )
 
 func StartCommInterface(conf map[string]interface{}) error {
@@ -40,7 +41,8 @@ func StartCommInterface(conf map[string]interface{}) error {
 			return err
 		}
 		ConnectedNodes = &models.ConnectedList{}
-		DataTable = &models.DataTable{}
+		DataTable = &models.DataTable{Data: make(map[string]string)}
+		Services = make(map[string]*models.Service)
 	}
 	return nil
 }

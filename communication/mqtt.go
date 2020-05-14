@@ -2,8 +2,6 @@ package communication
 
 import (
 	"fmt"
-	"github.com/Abathargh/moody-go/communication/handlers"
-	"github.com/Abathargh/moody-go/models"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/mitchellh/mapstructure"
 	"gopkg.in/validator.v2"
@@ -14,21 +12,11 @@ import (
 const (
 	clientId = "Moody-base"
 
-	subTopicsCount = 2
-	pubTopicsCount = 3
-
-	greetTopic = 0
-	dataTopic  = 1
-
 	discoveryTopic        = 0
 	ruleUpdateTopic       = 1
 	situationForwardTopic = 2
 
-	quiesce = 200 // Client disconect quiescence
-)
-
-var (
-	callbacks = []func(mqtt.Client, mqtt.Message){greetCallback, dataCallback}
+	quiesce = 200 // Client disconnect quiescence
 )
 
 // MQTTClient implements the communication.Client ui
@@ -42,8 +30,8 @@ type MQTTClient struct {
 type MQTTConfig struct {
 	Host      string   `validate:"nonzero"`
 	Port      int      `validate:"nonzero,min=1,max=65536"`
-	SubTopics []string `validate:"nonzero,len=2"` // 2 sub topic defined in the standard mqtt implementatoin
-	PubTopics []string `validate:"nonzero,len=3"` // 3 pub topic defined in the standard mqtt implementatoin
+	DataTopic string   `validate:"nonzero"`       // 2 sub topic defined in the standard mqtt implementation
+	PubTopics []string `validate:"nonzero,len=3"` // 3 pub topic defined in the standard mqtt implementation
 }
 
 // Initializes the MQTTClient, for now we don't use a singleton in case in the future there's the need to
@@ -64,11 +52,9 @@ func (c *MQTTClient) Init(conf interface{}) error {
 	opts.OnConnect = func(client mqtt.Client) {
 		subscribing := true
 		for subscribing {
-			for index := range c.config.SubTopics {
-				greetToken := client.Subscribe(c.config.SubTopics[index], 0, callbacks[index])
-				if greetToken.Wait() && greetToken.Error() != nil {
-					continue
-				}
+			dataToken := client.Subscribe(c.config.DataTopic, 0, dataCallback)
+			if dataToken.Wait() && dataToken.Error() != nil {
+				continue
 			}
 			subscribing = false
 		}
@@ -117,28 +103,12 @@ func (c *MQTTClient) Close() {
 }
 
 // The function that is called whenever a MQTT message is received on the
-// greet topic.
-func greetCallback(_ mqtt.Client, message mqtt.Message) {
-	node, err := models.NodeFromJson(message.Payload())
-	if err != nil {
-		log.Println("an error occurred while unmarshalling a greet packet")
-		log.Println(err.Error())
-		return
-	}
-	handlers.GreetHandler(node)
-}
-
-// The function that is called whenever a MQTT message is received on the
 // sensor data topic.
 func dataCallback(_ mqtt.Client, message mqtt.Message) {
-	data, err := models.DataFromJson(message.Payload())
-	if err != nil {
-		log.Println("an error occurred while unmarshalling a data packet")
-		log.Println(err.Error())
-		return
-	}
-	fmt.Println(data)
+	// TODO Potential bug if someone uses a topic with wrong subtopics
+	// check split topic len? (must be > 3)
+	data := string(message.Payload())
 	topicTokens := strings.Split(message.Topic(), "/")
 	datatype := topicTokens[len(topicTokens)-1]
-	handlers.DataHandler(datatype, data)
+	DataHandler(datatype, data)
 }

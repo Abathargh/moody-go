@@ -1,9 +1,8 @@
-package dao
+package db
 
 import (
 	"context"
-
-	"github.com/Abathargh/moody-go/db/model"
+	"github.com/Abathargh/moody-go/models"
 
 	"github.com/smallnest/gen/dbmeta"
 )
@@ -13,11 +12,11 @@ import (
 // params - pagesize - number of records in a page  (defaults to 20)
 // params - order    - db sort order column
 // error - NotFound, db Find error
-func GetAllNeuralData(ctx context.Context, page, pagesize int64, order string) (neuraldata []*model.NeuralDatum, totalRows int, err error) {
+func GetAllNeuralData(ctx context.Context, page, pagesize int64, order string) (neuraldata []*models.NeuralDatum, totalRows int, err error) {
 
-	neuraldata = []*model.NeuralDatum{}
+	neuraldata = []*models.NeuralDatum{}
 
-	neuraldata_orm := DB.Model(&model.NeuralDatum{})
+	neuraldata_orm := DB.Model(&models.NeuralDatum{})
 	neuraldata_orm.Count(&totalRows)
 
 	if page > 0 {
@@ -41,7 +40,7 @@ func GetAllNeuralData(ctx context.Context, page, pagesize int64, order string) (
 
 // GetNeuralDatum is a function to get a single record to neural_data table in the main database
 // error - NotFound, db Find error
-func GetNeuralDatum(ctx context.Context, id interface{}) (record *model.NeuralDatum, err error) {
+func GetNeuralDatum(ctx context.Context, id interface{}) (record *models.NeuralDatum, err error) {
 	if err = DB.First(record, id).Error; err != nil {
 		err = NotFound
 		return nil, err
@@ -52,7 +51,7 @@ func GetNeuralDatum(ctx context.Context, id interface{}) (record *model.NeuralDa
 
 // AddNeuralDatum is a function to add a single record to neural_data table in the main database
 // error - InsertFailedError, db save call failed
-func AddNeuralDatum(ctx context.Context, neuraldatum *model.NeuralDatum) (err error) {
+func AddNeuralDatum(ctx context.Context, neuraldatum *models.NeuralDatum) (err error) {
 
 	if err = DB.Save(neuraldatum).Error; err != nil {
 		err = InsertFailedError
@@ -65,9 +64,9 @@ func AddNeuralDatum(ctx context.Context, neuraldatum *model.NeuralDatum) (err er
 // UpdateNeuralDatum is a function to update a single record from neural_data table in the main database
 // error - NotFound, db record for id not found
 // error - UpdateFailedError, db meta data copy failed or db.Save call failed
-func UpdateNeuralDatum(ctx context.Context, id interface{}, updated *model.NeuralDatum) (err error) {
+func UpdateNeuralDatum(ctx context.Context, id interface{}, updated *models.NeuralDatum) (err error) {
 
-	neuraldatum := &model.NeuralDatum{}
+	neuraldatum := &models.NeuralDatum{}
 	if err = DB.First(neuraldatum, id).Error; err != nil {
 		err = NotFound
 		return
@@ -91,7 +90,7 @@ func UpdateNeuralDatum(ctx context.Context, id interface{}, updated *model.Neura
 // error - DeleteFailedError, db Delete failed error
 func DeleteNeuralDatum(ctx context.Context, id interface{}) (err error) {
 
-	neuraldatum := &model.NeuralDatum{}
+	neuraldatum := &models.NeuralDatum{}
 
 	if DB.First(neuraldatum, id).Error != nil {
 		err = NotFound

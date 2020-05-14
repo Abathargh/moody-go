@@ -2,7 +2,6 @@ package db
 
 import (
 	"fmt"
-	"github.com/Abathargh/moody-go/db/dao"
 	"github.com/jinzhu/gorm"
 	"github.com/mitchellh/go-homedir"
 	"os"
@@ -37,33 +36,6 @@ func Init() error {
 		return err
 	}
 
-	dao.DB = db
+	DB = db
 	return nil
 }
-
-/*
-package main
-
-import (
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
-)
-func main() {
-	if err := DBInit(); err != nil {
-		log.Println("Couldn't initalize the databse!")
-		log.Fatal(err)
-	}
-
-	result, size, err := dao.GetAllNodes(nil, 0, 20, "")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Found ", size, " records")
-
-	for _, elem := range result {
-		fmt.Println(elem)
-	}
-
-}
-*/

@@ -1,9 +1,8 @@
-package dao
+package db
 
 import (
 	"context"
-
-	"github.com/Abathargh/moody-go/db/model"
+	"github.com/Abathargh/moody-go/models"
 
 	"github.com/smallnest/gen/dbmeta"
 )
@@ -13,11 +12,11 @@ import (
 // params - pagesize - number of records in a page  (defaults to 20)
 // params - order    - db sort order column
 // error - NotFound, db Find error
-func GetAllSituationSettings(ctx context.Context, page, pagesize int64, order string) (situationsettings []*model.SituationSetting, totalRows int, err error) {
+func GetAllSituationSettings(ctx context.Context, page, pagesize int64, order string) (situationsettings []*models.SituationSetting, totalRows int, err error) {
 
-	situationsettings = []*model.SituationSetting{}
+	situationsettings = []*models.SituationSetting{}
 
-	situationsettings_orm := DB.Model(&model.SituationSetting{})
+	situationsettings_orm := DB.Model(&models.SituationSetting{})
 	situationsettings_orm.Count(&totalRows)
 
 	if page > 0 {
@@ -41,7 +40,7 @@ func GetAllSituationSettings(ctx context.Context, page, pagesize int64, order st
 
 // GetSituationSetting is a function to get a single record to situation_setting table in the main database
 // error - NotFound, db Find error
-func GetSituationSetting(ctx context.Context, id interface{}) (record *model.SituationSetting, err error) {
+func GetSituationSetting(ctx context.Context, id interface{}) (record *models.SituationSetting, err error) {
 	if err = DB.First(record, id).Error; err != nil {
 		err = NotFound
 		return nil, err
@@ -52,7 +51,7 @@ func GetSituationSetting(ctx context.Context, id interface{}) (record *model.Sit
 
 // AddSituationSetting is a function to add a single record to situation_setting table in the main database
 // error - InsertFailedError, db save call failed
-func AddSituationSetting(ctx context.Context, situationsetting *model.SituationSetting) (err error) {
+func AddSituationSetting(ctx context.Context, situationsetting *models.SituationSetting) (err error) {
 
 	if err = DB.Save(situationsetting).Error; err != nil {
 		err = InsertFailedError
@@ -65,9 +64,9 @@ func AddSituationSetting(ctx context.Context, situationsetting *model.SituationS
 // UpdateSituationSetting is a function to update a single record from situation_setting table in the main database
 // error - NotFound, db record for id not found
 // error - UpdateFailedError, db meta data copy failed or db.Save call failed
-func UpdateSituationSetting(ctx context.Context, id interface{}, updated *model.SituationSetting) (err error) {
+func UpdateSituationSetting(ctx context.Context, id interface{}, updated *models.SituationSetting) (err error) {
 
-	situationsetting := &model.SituationSetting{}
+	situationsetting := &models.SituationSetting{}
 	if err = DB.First(situationsetting, id).Error; err != nil {
 		err = NotFound
 		return
@@ -91,7 +90,7 @@ func UpdateSituationSetting(ctx context.Context, id interface{}, updated *model.
 // error - DeleteFailedError, db Delete failed error
 func DeleteSituationSetting(ctx context.Context, id interface{}) (err error) {
 
-	situationsetting := &model.SituationSetting{}
+	situationsetting := &models.SituationSetting{}
 
 	if DB.First(situationsetting, id).Error != nil {
 		err = NotFound

@@ -1,9 +1,8 @@
-package dao
+package db
 
 import (
 	"context"
-
-	"github.com/Abathargh/moody-go/db/model"
+	"github.com/Abathargh/moody-go/models"
 
 	"github.com/smallnest/gen/dbmeta"
 )
@@ -13,11 +12,11 @@ import (
 // params - pagesize - number of records in a page  (defaults to 20)
 // params - order    - db sort order column
 // error - NotFound, db Find error
-func GetAllActions(ctx context.Context, page, pagesize int64, order string) (actions []*model.Action, totalRows int, err error) {
+func GetAllActions(ctx context.Context, page, pagesize int64, order string) (actions []*models.Action, totalRows int, err error) {
 
-	actions = []*model.Action{}
+	actions = []*models.Action{}
 
-	actions_orm := DB.Model(&model.Action{})
+	actions_orm := DB.Model(&models.Action{})
 	actions_orm.Count(&totalRows)
 
 	if page > 0 {
@@ -41,7 +40,7 @@ func GetAllActions(ctx context.Context, page, pagesize int64, order string) (act
 
 // GetAction is a function to get a single record to action table in the main database
 // error - NotFound, db Find error
-func GetAction(ctx context.Context, id interface{}) (record *model.Action, err error) {
+func GetAction(ctx context.Context, id interface{}) (record *models.Action, err error) {
 	if err = DB.First(record, id).Error; err != nil {
 		err = NotFound
 		return nil, err
@@ -52,7 +51,7 @@ func GetAction(ctx context.Context, id interface{}) (record *model.Action, err e
 
 // AddAction is a function to add a single record to action table in the main database
 // error - InsertFailedError, db save call failed
-func AddAction(ctx context.Context, action *model.Action) (err error) {
+func AddAction(ctx context.Context, action *models.Action) (err error) {
 
 	if err = DB.Save(action).Error; err != nil {
 		err = InsertFailedError
@@ -65,9 +64,9 @@ func AddAction(ctx context.Context, action *model.Action) (err error) {
 // UpdateAction is a function to update a single record from action table in the main database
 // error - NotFound, db record for id not found
 // error - UpdateFailedError, db meta data copy failed or db.Save call failed
-func UpdateAction(ctx context.Context, id interface{}, updated *model.Action) (err error) {
+func UpdateAction(ctx context.Context, id interface{}, updated *models.Action) (err error) {
 
-	action := &model.Action{}
+	action := &models.Action{}
 	if err = DB.First(action, id).Error; err != nil {
 		err = NotFound
 		return
@@ -91,7 +90,7 @@ func UpdateAction(ctx context.Context, id interface{}, updated *model.Action) (e
 // error - DeleteFailedError, db Delete failed error
 func DeleteAction(ctx context.Context, id interface{}) (err error) {
 
-	action := &model.Action{}
+	action := &models.Action{}
 
 	if DB.First(action, id).Error != nil {
 		err = NotFound

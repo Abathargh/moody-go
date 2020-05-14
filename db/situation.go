@@ -1,9 +1,8 @@
-package dao
+package db
 
 import (
 	"context"
-
-	"github.com/Abathargh/moody-go/db/model"
+	"github.com/Abathargh/moody-go/models"
 
 	"github.com/smallnest/gen/dbmeta"
 )
@@ -13,11 +12,11 @@ import (
 // params - pagesize - number of records in a page  (defaults to 20)
 // params - order    - db sort order column
 // error - NotFound, db Find error
-func GetAllSituations(_ context.Context, page, pagesize int64, order string) (situations []*model.Situation, totalRows int, err error) {
+func GetAllSituations(_ context.Context, page, pagesize int64, order string) (situations []*models.Situation, totalRows int, err error) {
 
-	situations = []*model.Situation{}
+	situations = []*models.Situation{}
 
-	situations_orm := DB.Model(&model.Situation{})
+	situations_orm := DB.Model(&models.Situation{})
 	situations_orm.Count(&totalRows)
 
 	if page > 0 {
@@ -41,7 +40,7 @@ func GetAllSituations(_ context.Context, page, pagesize int64, order string) (si
 
 // GetSituation is a function to get a single record to situation table in the main database
 // error - NotFound, db Find error
-func GetSituation(ctx context.Context, id interface{}) (record *model.Situation, err error) {
+func GetSituation(ctx context.Context, id interface{}) (record *models.Situation, err error) {
 	if err = DB.First(record, id).Error; err != nil {
 		err = NotFound
 		return nil, err
@@ -52,7 +51,7 @@ func GetSituation(ctx context.Context, id interface{}) (record *model.Situation,
 
 // AddSituation is a function to add a single record to situation table in the main database
 // error - InsertFailedError, db save call failed
-func AddSituation(ctx context.Context, situation *model.Situation) (err error) {
+func AddSituation(ctx context.Context, situation *models.Situation) (err error) {
 
 	if err = DB.Save(situation).Error; err != nil {
 		err = InsertFailedError
@@ -65,9 +64,9 @@ func AddSituation(ctx context.Context, situation *model.Situation) (err error) {
 // UpdateSituation is a function to update a single record from situation table in the main database
 // error - NotFound, db record for id not found
 // error - UpdateFailedError, db meta data copy failed or db.Save call failed
-func UpdateSituation(ctx context.Context, id interface{}, updated *model.Situation) (err error) {
+func UpdateSituation(ctx context.Context, id interface{}, updated *models.Situation) (err error) {
 
-	situation := &model.Situation{}
+	situation := &models.Situation{}
 	if err = DB.First(situation, id).Error; err != nil {
 		err = NotFound
 		return
@@ -91,7 +90,7 @@ func UpdateSituation(ctx context.Context, id interface{}, updated *model.Situati
 // error - DeleteFailedError, db Delete failed error
 func DeleteSituation(ctx context.Context, id interface{}) (err error) {
 
-	situation := &model.Situation{}
+	situation := &models.Situation{}
 
 	if DB.First(situation, id).Error != nil {
 		err = NotFound

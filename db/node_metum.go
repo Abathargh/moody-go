@@ -1,9 +1,8 @@
-package dao
+package db
 
 import (
 	"context"
-
-	"github.com/Abathargh/moody-go/db/model"
+	"github.com/Abathargh/moody-go/models"
 
 	"github.com/smallnest/gen/dbmeta"
 )
@@ -13,11 +12,11 @@ import (
 // params - pagesize - number of records in a page  (defaults to 20)
 // params - order    - db sort order column
 // error - NotFound, db Find error
-func GetAllNodeMeta(ctx context.Context, page, pagesize int64, order string) (nodemeta []*model.NodeMetum, totalRows int, err error) {
+func GetAllNodeMeta(ctx context.Context, page, pagesize int64, order string) (nodemeta []*models.NodeMeta, totalRows int, err error) {
 
-	nodemeta = []*model.NodeMetum{}
+	nodemeta = []*models.NodeMeta{}
 
-	nodemeta_orm := DB.Model(&model.NodeMetum{})
+	nodemeta_orm := DB.Model(&models.NodeMeta{})
 	nodemeta_orm.Count(&totalRows)
 
 	if page > 0 {
@@ -41,7 +40,7 @@ func GetAllNodeMeta(ctx context.Context, page, pagesize int64, order string) (no
 
 // GetNodeMetum is a function to get a single record to node_meta table in the main database
 // error - NotFound, db Find error
-func GetNodeMetum(ctx context.Context, id interface{}) (record *model.NodeMetum, err error) {
+func GetNodeMetum(ctx context.Context, id interface{}) (record *models.NodeMeta, err error) {
 	if err = DB.First(record, id).Error; err != nil {
 		err = NotFound
 		return nil, err
@@ -52,7 +51,7 @@ func GetNodeMetum(ctx context.Context, id interface{}) (record *model.NodeMetum,
 
 // AddNodeMetum is a function to add a single record to node_meta table in the main database
 // error - InsertFailedError, db save call failed
-func AddNodeMetum(ctx context.Context, nodemetum *model.NodeMetum) (err error) {
+func AddNodeMetum(ctx context.Context, nodemetum *models.NodeMeta) (err error) {
 
 	if err = DB.Save(nodemetum).Error; err != nil {
 		err = InsertFailedError
@@ -65,9 +64,9 @@ func AddNodeMetum(ctx context.Context, nodemetum *model.NodeMetum) (err error) {
 // UpdateNodeMetum is a function to update a single record from node_meta table in the main database
 // error - NotFound, db record for id not found
 // error - UpdateFailedError, db meta data copy failed or db.Save call failed
-func UpdateNodeMetum(ctx context.Context, id interface{}, updated *model.NodeMetum) (err error) {
+func UpdateNodeMetum(ctx context.Context, id interface{}, updated *models.NodeMeta) (err error) {
 
-	nodemetum := &model.NodeMetum{}
+	nodemetum := &models.NodeMeta{}
 	if err = DB.First(nodemetum, id).Error; err != nil {
 		err = NotFound
 		return
@@ -91,7 +90,7 @@ func UpdateNodeMetum(ctx context.Context, id interface{}, updated *model.NodeMet
 // error - DeleteFailedError, db Delete failed error
 func DeleteNodeMetum(ctx context.Context, id interface{}) (err error) {
 
-	nodemetum := &model.NodeMetum{}
+	nodemetum := &models.NodeMeta{}
 
 	if DB.First(nodemetum, id).Error != nil {
 		err = NotFound

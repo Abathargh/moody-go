@@ -11,15 +11,15 @@ type NodesObservable interface {
 	Notify(evt NodeEvent)
 }
 
-type Action int
+type ActionPerformed int
 
 const (
-	Added Action = iota
+	Added ActionPerformed = iota
 	Removed
 )
 
 type NodeEvent struct {
-	Action Action
+	Action ActionPerformed
 	Node   Node
 }
 
@@ -88,14 +88,14 @@ func (list *ConnectedList) Notify(evt NodeEvent) {
 //State table implementation
 type DataTable struct {
 	mutex        sync.Mutex
-	data         map[string]string
+	Data         map[string]string
 	EvtListeners []chan<- DataEvent
 }
 
 func (table *DataTable) Add(key string, value string) {
 	table.mutex.Lock()
 	defer table.mutex.Unlock()
-	table.data[key] = value
+	table.Data[key] = value
 	evt := DataEvent{
 		Datatype: key,
 		Payload:  value,

@@ -1,4 +1,4 @@
-package model
+package models
 
 import (
 	"database/sql"
@@ -25,7 +25,7 @@ table main.action {
 
 */
 
-// Action struct is a row record of the action table in the main database
+// ActionPerformed struct is a row record of the action table in the main database
 type Action struct {
 	ActionID       sql.NullInt64  `gorm:"column:action_id;primary_key" json:"action_id"`
 	ActionName     sql.NullString `gorm:"column:action_name" json:"action_name"`

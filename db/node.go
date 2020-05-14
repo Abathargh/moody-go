@@ -1,9 +1,8 @@
-package dao
+package db
 
 import (
 	"context"
-
-	"github.com/Abathargh/moody-go/db/model"
+	"github.com/Abathargh/moody-go/models"
 
 	"github.com/smallnest/gen/dbmeta"
 )
@@ -13,11 +12,11 @@ import (
 // params - pagesize - number of records in a page  (defaults to 20)
 // params - order    - db sort order column
 // error - NotFound, db Find error
-func GetAllNodes(ctx context.Context, page, pagesize int64, order string) (nodes []*model.Node, totalRows int, err error) {
+func GetAllNodes(ctx context.Context, page, pagesize int64, order string) (nodes []*models.Node, totalRows int, err error) {
 
-	nodes = []*model.Node{}
+	nodes = []*models.Node{}
 
-	nodes_orm := DB.Model(&model.Node{})
+	nodes_orm := DB.Model(&models.Node{})
 	nodes_orm.Count(&totalRows)
 
 	if page > 0 {
@@ -41,18 +40,18 @@ func GetAllNodes(ctx context.Context, page, pagesize int64, order string) (nodes
 
 // GetNode is a function to get a single record to node table in the main database
 // error - NotFound, db Find error
-func GetNode(ctx context.Context, id interface{}) (record *model.Node, err error) {
-	if err = DB.First(record, id).Error; err != nil {
-		err = NotFound
+func GetNode(ctx context.Context, mac string) (*models.Node, error) {
+	var record models.Node
+	if err := DB.Where("node_macaddress = ?", mac).First(&record).Error; err != nil {
 		return nil, err
 	}
 
-	return record, nil
+	return &record, nil
 }
 
 // AddNode is a function to add a single record to node table in the main database
 // error - InsertFailedError, db save call failed
-func AddNode(ctx context.Context, node *model.Node) (err error) {
+func AddNode(ctx context.Context, node *models.Node) (err error) {
 
 	if err = DB.Save(node).Error; err != nil {
 		err = InsertFailedError
@@ -65,9 +64,9 @@ func AddNode(ctx context.Context, node *model.Node) (err error) {
 // UpdateNode is a function to update a single record from node table in the main database
 // error - NotFound, db record for id not found
 // error - UpdateFailedError, db meta data copy failed or db.Save call failed
-func UpdateNode(ctx context.Context, id interface{}, updated *model.Node) (err error) {
+func UpdateNode(ctx context.Context, id interface{}, updated *models.Node) (err error) {
 
-	node := &model.Node{}
+	node := &models.Node{}
 	if err = DB.First(node, id).Error; err != nil {
 		err = NotFound
 		return
@@ -91,7 +90,7 @@ func UpdateNode(ctx context.Context, id interface{}, updated *model.Node) (err e
 // error - DeleteFailedError, db Delete failed error
 func DeleteNode(ctx context.Context, id interface{}) (err error) {
 
-	node := &model.Node{}
+	node := &models.Node{}
 
 	if DB.First(node, id).Error != nil {
 		err = NotFound
