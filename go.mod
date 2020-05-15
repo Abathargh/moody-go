@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.2.0
+	github.com/gorilla/mux v1.6.2
 	github.com/guregu/null v3.4.0+incompatible
 	github.com/jinzhu/gorm v1.9.12
 	github.com/mitchellh/go-homedir v1.1.0

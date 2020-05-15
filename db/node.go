@@ -40,7 +40,7 @@ func GetAllNodes(ctx context.Context, page, pagesize int64, order string) (nodes
 
 // GetNode is a function to get a single record to node table in the main database
 // error - NotFound, db Find error
-func GetNode(ctx context.Context, mac string) (*models.Node, error) {
+func GetNode(mac string) (*models.Node, error) {
 	var record models.Node
 	if err := DB.Where("node_macaddress = ?", mac).First(&record).Error; err != nil {
 		return nil, err

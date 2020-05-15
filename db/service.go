@@ -5,6 +5,19 @@ import (
 	"github.com/smallnest/gen/dbmeta"
 )
 
+func GetAllServices() (services []*models.Service, totalRows int64, err error) {
+	services = []*models.Service{}
+	serviceOrm := DB.Model(&models.Situation{})
+	serviceOrm.Count(&totalRows)
+
+	if err = serviceOrm.Find(&services).Error; err != nil {
+		err = NotFound
+		return nil, -1, err
+	}
+
+	return services, totalRows, nil
+}
+
 func GetService(id int64) (*models.Service, error) {
 	var service models.Service
 
