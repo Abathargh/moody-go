@@ -23,9 +23,9 @@ func GetAllSituations() (situations []*models.Situation, totalRows int64, err er
 
 // GetSituation is a function to get a single record to situation table in the main database
 // error - NotFound, db Find error
-func GetSituation(name string) (*models.Situation, error) {
+func GetSituation(id uint64) (*models.Situation, error) {
 	var situation models.Situation
-	if err := DB.Where("name = ?", name).First(&situation).Error; err != nil {
+	if err := DB.First(&situation, id).Error; err != nil {
 		return nil, err
 	}
 
@@ -46,10 +46,14 @@ func AddSituation(situation *models.Situation) (err error) {
 // DeleteSituation is a function to delete a single record from situation table in the main database
 // error - NotFound, db Find error
 // error - DeleteFailedError, db Delete failed error
-func DeleteSituation(situation *models.Situation) (err error) {
-	if err = DB.Delete(situation).Error; err != nil {
-		err = DeleteFailedError
-		return
+func DeleteSituation(s *models.Situation) (err error) {
+	situation := &models.Situation{}
+	if err := DB.First(&situation, s.SituationId).Error; err != nil {
+		return NotFound
 	}
+	if err := DB.Delete(situation).Error; err != nil {
+		return DeleteFailedError
+	}
+
 	return nil
 }

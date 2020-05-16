@@ -9,89 +9,90 @@ import (
 	"strconv"
 )
 
-type situationsResponse struct {
-	Situations     []*models.Situation `json:"situations"`
-	SituationCount int64               `json:"count"`
+type servicesResponse struct {
+	Services     []*models.Service `json:"services"`
+	ServiceCount int64             `json:"count"`
 }
 
-// Get handler for /situations
-func getSituations(w http.ResponseWriter, _ *http.Request) {
-	situations, count, err := db.GetAllSituations()
+func getServices(w http.ResponseWriter, r *http.Request) {
+	services, count, err := db.GetAllServices()
 	if err != nil {
-		situations = []*models.Situation{}
+		services = []*models.Service{}
 	}
-	resp := situationsResponse{
-		Situations:     situations,
-		SituationCount: count,
+	resp := servicesResponse{
+		Services:     services,
+		ServiceCount: count,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	MustEncode(w, resp)
 }
 
-// Post handler for /situations
-func postSituation(w http.ResponseWriter, r *http.Request) {
-	newSituation := &models.Situation{}
+func postService(w http.ResponseWriter, r *http.Request) {
+	newService := &models.Service{}
 	w.Header().Set("Content-Type", "application/json")
-	ok := MustValidate(r, newSituation)
+	ok := MustValidate(r, newService)
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
 		MustEncode(w, ErrorResponse{"Bad syntax"})
 		return
 	}
-	if err := db.AddSituation(newSituation); err != nil {
+
+	if err := db.AddService(newService); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		MustEncode(w, ErrorResponse{"Record with pk already exists"})
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	MustEncode(w, newSituation)
+	MustEncode(w, newService)
 	if err := r.Body.Close(); err != nil {
 		log.Println(err)
 	}
 }
 
 // Get handler for /situation/{name}
-func getSituation(w http.ResponseWriter, r *http.Request) {
+func getService(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
+
 	id, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		MustEncode(w, ErrorResponse{"Bad syntax"})
 		return
 	}
-	situation, err := db.GetSituation(id)
+	service, err := db.GetService(id)
 	if err != nil {
-		situation = &models.Situation{}
+		service = &models.Service{}
 	}
 	// here the response is the situation itself
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	MustEncode(w, situation)
+	MustEncode(w, service)
 }
 
 // Delete handler for /situation/{name}
-func deleteSituation(w http.ResponseWriter, r *http.Request) {
+func deleteService(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
+
 	id, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		MustEncode(w, ErrorResponse{"Bad syntax"})
 		return
 	}
-	situation, err := db.GetSituation(id)
+
+	service, err := db.GetService(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		MustEncode(w, ErrorResponse{"The situation does not exist"})
 	}
 
-	// TODO remove all situation settings and test
-
-	if err := db.DeleteSituation(situation); err != nil {
+	if err := db.DeleteService(service); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		MustEncode(w, ErrorResponse{"An error occurred while trying to delete the situation"})
 	}
 	w.WriteHeader(http.StatusOK)
-	MustEncode(w, situation)
+	MustEncode(w, service)
 }
