@@ -7,6 +7,7 @@ import (
 	"gopkg.in/validator.v2"
 	"log"
 	"strings"
+	"time"
 )
 
 const (
@@ -16,7 +17,8 @@ const (
 	ruleUpdateTopic       = 1
 	situationForwardTopic = 2
 
-	quiesce = 200 // Client disconnect quiescence
+	quiesce     = 200 // Client disconnect quiescence
+	pingTimeout = 2 * time.Second
 )
 
 // MQTTClient implements the communication.Client ui
@@ -47,9 +49,10 @@ func (c *MQTTClient) Init(conf interface{}) error {
 		return err
 	}
 
-	opts := mqtt.NewClientOptions().AddBroker(fmt.Sprintf("tcp://%v:%v", c.config.Host, c.config.Port))
-	opts.SetClientID(clientId)
-	opts.OnConnect = func(client mqtt.Client) {
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(fmt.Sprintf("tcp://%v:%v", c.config.Host, c.config.Port))
+	opts.SetPingTimeout(pingTimeout)
+	opts.SetOnConnectHandler(func(client mqtt.Client) {
 		subscribing := true
 		for subscribing {
 			dataToken := client.Subscribe(c.config.DataTopic, 0, dataCallback)
@@ -58,7 +61,7 @@ func (c *MQTTClient) Init(conf interface{}) error {
 			}
 			subscribing = false
 		}
-	}
+	})
 
 	c.client = mqtt.NewClient(opts)
 	return nil
@@ -69,14 +72,6 @@ func (c *MQTTClient) Connect() error {
 
 	if connectionToken.Wait() && connectionToken.Error() != nil {
 		return connectionToken.Error()
-	}
-	return nil
-}
-
-func (c *MQTTClient) Discover() error {
-	token := c.client.Publish(c.config.PubTopics[discoveryTopic], 0, false, clientId)
-	if token.Wait() && token.Error() != nil {
-		return token.Error()
 	}
 	return nil
 }
@@ -99,14 +94,14 @@ func (c *MQTTClient) Update(group, rule string) error {
 }
 
 func (c *MQTTClient) Close() {
+	log.Println("MQTT Client - Shutting down")
+	c.client.Unsubscribe(c.config.DataTopic)
 	c.client.Disconnect(quiesce)
 }
 
 // The function that is called whenever a MQTT message is received on the
 // sensor data topic.
 func dataCallback(_ mqtt.Client, message mqtt.Message) {
-	// TODO Potential bug if someone uses a topic with wrong subtopics
-	// check split topic len? (must be > 3)
 	data := string(message.Payload())
 	topicTokens := strings.Split(message.Topic(), "/")
 	datatype := topicTokens[len(topicTokens)-1]

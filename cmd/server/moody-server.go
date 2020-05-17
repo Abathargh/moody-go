@@ -1,16 +1,23 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	confinit "github.com/Abathargh/moody-go"
 	"github.com/Abathargh/moody-go/communication"
 	"github.com/Abathargh/moody-go/db"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
 	conf, err := confinit.ConfInit()
 	if err != nil {
 		log.Println("an error occurred while reading the configuration file")
@@ -33,7 +40,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	communication.HttpListenAndServe()
+	if err := confinit.LoadServices(); err != nil {
+		log.Println("an error occurred while retrieving the activated services")
+		log.Fatal(err)
+	}
+
+	server := communication.HttpListenAndServer()
+	go func() { log.Fatal(server.ListenAndServe()) }()
+	<-quit
+
+	if err := server.Shutdown(context.TODO()); err != nil {
+		log.Fatal(err)
+	}
 
 	communication.CommClose()
 	if err := db.DB.Close(); err != nil {

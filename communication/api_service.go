@@ -14,7 +14,11 @@ type servicesResponse struct {
 	ServiceCount int64             `json:"count"`
 }
 
-func getServices(w http.ResponseWriter, r *http.Request) {
+type serviceActivation struct {
+	Action models.StateValue `validate:"min=0,max=1" json:"state"`
+}
+
+func getServices(w http.ResponseWriter, _ *http.Request) {
 	services, count, err := db.GetAllServices()
 	if err != nil {
 		services = []*models.Service{}
@@ -52,9 +56,8 @@ func postService(w http.ResponseWriter, r *http.Request) {
 
 // Get handler for /situation/{name}
 func getService(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
-
+	vars := mux.Vars(r)
 	id, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -95,4 +98,56 @@ func deleteService(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	MustEncode(w, service)
+}
+
+func patchService(w http.ResponseWriter, r *http.Request) {
+	activation := &serviceActivation{}
+	w.Header().Set("Content-Type", "application/json")
+	ok := MustValidate(r, activation)
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		MustEncode(w, ErrorResponse{"Bad syntax"})
+		return
+	}
+
+	vars := mux.Vars(r)
+	id, err := strconv.ParseUint(vars["id"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		MustEncode(w, ErrorResponse{"Bad syntax"})
+		return
+	}
+	service, err := db.GetService(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		MustEncode(w, ErrorResponse{"The situation does not exist"})
+		return
+	}
+
+	// Update in app Service Map
+	tmpState := service.State
+	service.State = activation.Action
+	if err := db.PatchStateService(service); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		MustEncode(w, ErrorResponse{"Can't start the service"})
+		return
+	}
+	if tmpState != activation.Action {
+		switch activation.Action {
+		case models.Stopped:
+			delete(Services, service.Name)
+		case models.Started:
+			Services[service.Name] = service
+		default:
+			log.Println("a service can only be on or off")
+		}
+		log.Println(Services)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	MustEncode(w, service)
+
+	if err := r.Body.Close(); err != nil {
+		log.Println(err)
+	}
 }

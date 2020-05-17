@@ -35,7 +35,6 @@ func Init() error {
 	if err != nil {
 		return err
 	}
-
 	DB = db
 	return nil
 }

@@ -8,9 +8,10 @@ import (
 // Handles incoming data from a sensor, checking if the topic-specified
 // service exists.
 func DataHandler(datatype string, payload string) {
-	for _, service := range Services {
-		if service.Name == datatype {
+	for serviceName, _ := range Services {
+		if serviceName == datatype {
 			DataTable.Add(datatype, payload)
+			log.Println(DataTable.Data)
 			return
 		}
 	}

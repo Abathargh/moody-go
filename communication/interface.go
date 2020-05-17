@@ -8,7 +8,6 @@ import (
 type Client interface {
 	Init(conf interface{}) error
 	Connect() error
-	Discover() error
 	Forward(situation string) error
 	Update(group, rule string) error
 	Close()
@@ -55,12 +54,6 @@ func CommConnect() error {
 		}
 	}
 	return nil
-}
-
-func CommDiscover() {
-	for _, ifc := range clientMapping {
-		ifc.Discover()
-	}
 }
 
 func CommForward(situation string) {

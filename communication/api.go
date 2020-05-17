@@ -34,14 +34,15 @@ func MustValidate(r *http.Request, dest interface{}) (outcome bool) {
 	return true
 }
 
-func HttpListenAndServe() {
+func HttpListenAndServer() *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/situation", SituationsMux)
 	router.HandleFunc("/situation/{id}", SituationMux)
 	router.HandleFunc("/service", ServicesMux)
 	router.HandleFunc("/service/{id}", ServiceMux)
-	http.Handle("/", router)
-	log.Fatal(http.ListenAndServe(httpServerPort, nil))
+	server := &http.Server{Addr: httpServerPort, Handler: router}
+	//http.Handle("/", router)
+	return server
 }
 
 // Get all the Situations or add one
@@ -80,13 +81,15 @@ func ServicesMux(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Get or delete a situation
+// Get/delete a situation or patch it to activate it
 func ServiceMux(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		getService(w, r)
 	case http.MethodDelete:
 		deleteService(w, r)
+	case http.MethodPatch:
+		patchService(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}

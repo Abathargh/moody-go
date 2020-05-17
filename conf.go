@@ -1,10 +1,13 @@
-package confinit
+package init
 
 import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/Abathargh/moody-go/communication"
+	"github.com/Abathargh/moody-go/db"
 	"github.com/mitchellh/go-homedir"
+	"log"
 	"os"
 )
 
@@ -12,6 +15,19 @@ const (
 	configFolder = ".moody"
 	configFile   = "conf.json"
 )
+
+func LoadServices() error {
+	activeServices, err := db.GetActivatedServices()
+	if err != nil {
+		return err
+	}
+
+	for _, service := range activeServices {
+		communication.Services[service.Name] = service
+	}
+	log.Println(communication.Services)
+	return nil
+}
 
 func ConfInit() (map[string]interface{}, error) {
 	// Add check for connectionConfig != nil?
