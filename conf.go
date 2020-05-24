@@ -38,7 +38,7 @@ func ConfInit() (map[string]interface{}, error) {
 
 	var jsonConfig string
 
-	var path = fmt.Sprintf("%v%v%v%v", homeDir, string(os.PathSeparator), configFolder, string(os.PathSeparator))
+	path := fmt.Sprintf("%v%v%v%v", homeDir, string(os.PathSeparator), configFolder, string(os.PathSeparator))
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		dirErr := os.MkdirAll(path, os.ModePerm)
 		if dirErr != nil {

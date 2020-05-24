@@ -3,6 +3,6 @@
         "host": "moody-broker",
         "port": 1883,
         "dataTopic": "moody/service/+",
-        "pubTopics": ["moody/node/greeting","moody/actuator/rule", "moody/actuator/situation"]
+        "pubTopics": ["moody/actuator/update", "moody/actuator/situation"]
     }
 }

@@ -13,9 +13,8 @@ import (
 const (
 	clientId = "Moody-base"
 
-	discoveryTopic        = 0
-	ruleUpdateTopic       = 1
-	situationForwardTopic = 2
+	ruleUpdateTopic       = 0
+	situationForwardTopic = 1
 
 	quiesce     = 200 // Client disconnect quiescence
 	pingTimeout = 2 * time.Second

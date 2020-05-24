@@ -120,7 +120,7 @@ func patchService(w http.ResponseWriter, r *http.Request) {
 	service, err := db.GetService(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		MustEncode(w, ErrorResponse{"The situation does not exist"})
+		MustEncode(w, ErrorResponse{"The service does not exist"})
 		return
 	}
 

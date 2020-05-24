@@ -40,7 +40,7 @@ func StartCommInterface(conf map[string]interface{}) error {
 			return err
 		}
 		ConnectedNodes = &models.ConnectedList{}
-		DataTable = &models.DataTable{Data: make(map[string]string)}
+		DataTable = models.NewDataTable()
 		Services = make(map[string]*models.Service)
 	}
 	return nil
