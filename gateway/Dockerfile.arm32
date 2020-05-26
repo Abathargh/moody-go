@@ -1,4 +1,4 @@
-FROM arm64v8/golang
+FROM arm32v7/golang
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
@@ -15,7 +15,6 @@ COPY . .
 RUN go build -o moody-server ./cmd/server/moody-server.go
 WORKDIR /dist
 RUN cp /build/moody-server .
-RUN mkdir /root/.moody
 RUN cp /build/config/* $HOME/.moody/
 
 

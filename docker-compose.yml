@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  - moody-broker:
+      image: eclipse-mosquitto
+      networks:
+        - mqtt
+      ports:
+        - 1883:1883
+      command:
+        - ["mosquitto", "-v"]
+
+  - moody-gateway:
+      build:
+        - context: ./gateway
+        - dockerfile: ${DOCKERFILE_ARCH}
+      volumes:
+      - ./gateway:/build
+      - ./config:/root/.moody
+      networks:
+        - mqtt
+      depends_on:
+        - moody-broker
+
+  - moody-neural:
+      build: ./neural
+      volumes:
+        - ./neural:/neural
+        - ./config:/root/.moody
+      networks:
+        - mqtt
+      depends_on:
+        - moody-gateway
+
+networks:
+  mqtt:

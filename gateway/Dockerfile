@@ -15,7 +15,6 @@ COPY . .
 RUN go build -o moody-server ./cmd/server/moody-server.go
 WORKDIR /dist
 RUN cp /build/moody-server .
-RUN mkdir /root/.moody
 RUN cp /build/config/* $HOME/.moody/
 
 
