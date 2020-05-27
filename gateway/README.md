@@ -14,3 +14,5 @@ cd $GOPATH/src/github.com/Abathargh/moody-go/gateway
 ```bash
 docker pull abathargh/moody-go
 ```
+
+If you build it using the first method, remember to copy the content of the config dir in ~/.moody

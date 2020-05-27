@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/Abathargh/moody-go/models"
+	"github.com/Abathargh/moody-go/gateway/models"
 )
 
 // GetAllSituation is a function to get a slice of record(s) from situation table in the main database

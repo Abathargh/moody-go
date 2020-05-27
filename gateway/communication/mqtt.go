@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	clientId = "Moody-base"
+	// clientId = "Moody-base"
 
 	ruleUpdateTopic       = 0
 	situationForwardTopic = 1
 
-	quiesce     = 200 // Client disconnect quiescence
+	quiesce     = 50 // Client disconnect quiescence
 	pingTimeout = 2 * time.Second
 )
 
@@ -31,8 +31,8 @@ type MQTTClient struct {
 type MQTTConfig struct {
 	Host      string   `validate:"nonzero"`
 	Port      int      `validate:"nonzero,min=1,max=65536"`
-	DataTopic string   `validate:"nonzero"`       // 2 sub topic defined in the standard mqtt implementation
-	PubTopics []string `validate:"nonzero,len=3"` // 3 pub topic defined in the standard mqtt implementation
+	DataTopic string   `validate:"nonzero"`       // 1 sub topic defined in the standard mqtt implementation
+	PubTopics []string `validate:"nonzero,len=2"` // 2 pub topic defined in the standard mqtt implementation
 }
 
 // Initializes the MQTTClient, for now we don't use a singleton in case in the future there's the need to
@@ -51,6 +51,7 @@ func (c *MQTTClient) Init(conf interface{}) error {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%v:%v", c.config.Host, c.config.Port))
 	opts.SetPingTimeout(pingTimeout)
+	opts.KeepAlive = 0
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
 		subscribing := true
 		for subscribing {
@@ -94,8 +95,12 @@ func (c *MQTTClient) Update(group, rule string) error {
 
 func (c *MQTTClient) Close() {
 	log.Println("MQTT Client - Shutting down")
-	c.client.Unsubscribe(c.config.DataTopic)
-	c.client.Disconnect(quiesce)
+	if token := c.client.Unsubscribe(c.config.DataTopic); token.Wait() && token.Error() != nil {
+		log.Fatal(token.Error())
+	}
+	// TODO There's a bug that makes the disconnect hang, probably in the library
+	// c.client.Disconnect(quiesce)
+	log.Println("MQTT Client - Stopped")
 }
 
 // The function that is called whenever a MQTT message is received on the

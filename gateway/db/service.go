@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/Abathargh/moody-go/models"
+	"github.com/Abathargh/moody-go/gateway/models"
 )
 
 func GetAllServices() (services []*models.Service, totalRows int64, err error) {

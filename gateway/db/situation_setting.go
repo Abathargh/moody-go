@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"github.com/Abathargh/moody-go/models"
+	"github.com/Abathargh/moody-go/gateway/models"
 
 	"github.com/smallnest/gen/dbmeta"
 )

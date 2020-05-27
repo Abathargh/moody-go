@@ -1,8 +1,8 @@
 package communication
 
 import (
-	"github.com/Abathargh/moody-go/db"
-	"github.com/Abathargh/moody-go/models"
+	"github.com/Abathargh/moody-go/gateway/db"
+	"github.com/Abathargh/moody-go/gateway/models"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -136,6 +136,7 @@ func patchService(w http.ResponseWriter, r *http.Request) {
 		switch activation.Action {
 		case models.Stopped:
 			delete(Services, service.Name)
+			DataTable.Remove(service.Name)
 		case models.Started:
 			Services[service.Name] = service
 		default:

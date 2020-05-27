@@ -41,7 +41,6 @@ func HttpListenAndServer() *http.Server {
 	router.HandleFunc("/service", ServicesMux)
 	router.HandleFunc("/service/{id}", ServiceMux)
 	server := &http.Server{Addr: httpServerPort, Handler: router}
-	//http.Handle("/", router)
 	return server
 }
 

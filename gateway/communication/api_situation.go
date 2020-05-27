@@ -1,8 +1,8 @@
 package communication
 
 import (
-	"github.com/Abathargh/moody-go/db"
-	"github.com/Abathargh/moody-go/models"
+	"github.com/Abathargh/moody-go/gateway/db"
+	"github.com/Abathargh/moody-go/gateway/models"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"

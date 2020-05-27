@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -108,6 +109,10 @@ func (table *DataTable) Add(key string, value string) {
 	table.Notify(evt)
 }
 
+func (table *DataTable) Remove(key string) {
+	delete(table.data, key)
+}
+
 func (table *DataTable) Attach(evtChan chan<- DataEvent) {
 	table.mutex.Lock()
 	defer table.mutex.Unlock()
@@ -132,4 +137,17 @@ func (table *DataTable) keyValues() ([]string, []string) {
 	}
 
 	return keys, values
+}
+
+func (table *DataTable) String() string {
+	var s string
+	s = "{"
+	for key, value := range table.data {
+		s += fmt.Sprintf("%s: %s,", key, value)
+	}
+	if s[len(s)-1] != '{' {
+		s = s[:len(s)-1]
+	}
+	s += "}"
+	return s
 }
