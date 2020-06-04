@@ -11,12 +11,10 @@ import (
 )
 
 const (
-	// clientId = "Moody-base"
-
 	ruleUpdateTopic       = 0
 	situationForwardTopic = 1
 
-	quiesce     = 50 // Client disconnect quiescence
+	//quiesce     = 50 // Client disconnect quiescence
 	pingTimeout = 2 * time.Second
 )
 
@@ -28,11 +26,12 @@ type MQTTClient struct {
 	config MQTTConfig
 }
 
+// MQTTConfig stores the information contained in the mqtt section of the conf.json
 type MQTTConfig struct {
-	Host      string   `validate:"nonzero"`
-	Port      int      `validate:"nonzero,min=1,max=65536"`
-	DataTopic string   `validate:"nonzero"`       // 1 sub topic defined in the standard mqtt implementation
-	PubTopics []string `validate:"nonzero,len=2"` // 2 pub topic defined in the standard mqtt implementation
+	Host      string   `validate:"nonzero" json:"host"`
+	Port      int      `validate:"nonzero,min=1,max=65536" json:"port"`
+	DataTopic string   `validate:"nonzero" json:"dataTopic"`       // 1 sub topic in the standard mqtt implementation
+	PubTopics []string `validate:"nonzero,len=2" json:"pubTopics"` // 2 pub topic in the standard mqtt implementation
 }
 
 // Initializes the MQTTClient, for now we don't use a singleton in case in the future there's the need to
@@ -42,12 +41,10 @@ func (c *MQTTClient) Init(conf interface{}) error {
 		log.Println("wrong format for the mqtt section of the config file")
 		return err
 	}
-
 	if err := validator.Validate(c.config); err != nil {
 		log.Println("wrong values for one or more fields in the mqtt section of the config file")
 		return err
 	}
-
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%v:%v", c.config.Host, c.config.Port))
 	opts.SetPingTimeout(pingTimeout)
@@ -98,7 +95,9 @@ func (c *MQTTClient) Close() {
 	if token := c.client.Unsubscribe(c.config.DataTopic); token.Wait() && token.Error() != nil {
 		log.Fatal(token.Error())
 	}
-	// TODO There's a bug that makes the disconnect hang, probably in the library
+	// There's a bug that makes the disconnect hang, probably in the mqtt library.
+	// Commenting the line below removes the bug but causes a broker-side client error
+	// on the gateway closing.
 	// c.client.Disconnect(quiesce)
 	log.Println("MQTT Client - Stopped")
 }
@@ -109,5 +108,5 @@ func dataCallback(_ mqtt.Client, message mqtt.Message) {
 	data := string(message.Payload())
 	topicTokens := strings.Split(message.Topic(), "/")
 	datatype := topicTokens[len(topicTokens)-1]
-	DataHandler(datatype, data)
+	main.DataHandler(datatype, data)
 }

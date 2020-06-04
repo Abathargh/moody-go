@@ -12,11 +12,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o moody-server ./cmd/server/moody-server.go
+RUN go build -o moody-gateway main.go
 WORKDIR /dist
-RUN cp /build/moody-server .
-RUN cp /build/config/* $HOME/.moody/
+RUN cp /build/moody-gateway .
 
-
-EXPOSE 1883
-CMD ["/dist/moody-server"]
+CMD ["/dist/moody-gateway"]
