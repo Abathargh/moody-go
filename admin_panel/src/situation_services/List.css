@@ -1,0 +1,66 @@
+.list {
+    border-radius: 25px;
+    background: #ebeeff;
+    border: 1px solid #af7bc7;
+    height: 45%;
+    margin: 1% 1% 3%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+}
+
+.list h2 {
+    text-align: center;
+}
+
+.list h3 {
+    color: #818181;
+}
+
+.list::-webkit-scrollbar {
+    width: 10px;
+    height: 70%;
+}
+
+.list::-webkit-scrollbar-track {
+    border-radius: 25px;
+}
+
+.list::-webkit-scrollbar-thumb {
+    border-radius: 25px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
+.situationList {
+    background: #ebeeff;
+    border-radius: 25px;
+    height: 92%;
+    border: 1px solid #af7bc7;
+    padding: 1%;
+    overflow-y: auto;
+}
+
+.situationList h2 {
+    text-align: center;
+}
+
+.situationList h3 {
+    color: #818181;
+}
+
+
+.listTable {
+    table-layout: fixed;
+    margin: auto;
+    padding-bottom: 3%;
+    width: 90%;
+    text-align: center;
+}
+
+.listTable th {
+    padding-bottom: 5%;
+}
+
+.listTable td {
+    padding-bottom: 5%;
+}

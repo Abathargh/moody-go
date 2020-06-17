@@ -1,0 +1,32 @@
+.activate {
+    color: rgb(116, 212, 140);
+}
+
+.activate:hover {
+    color: rgb(7, 121, 54);
+}
+
+.deactivate {
+    color: rgb(201, 82, 35);
+}
+
+.deactivate:hover {
+    color: rgb(202, 164, 83);
+}
+
+.create {
+    color: rgb(212, 116, 116);
+
+}
+
+.create:hover {
+
+}
+
+.remove {
+    color: rgb(212, 116, 116);
+}
+
+.remove:hover {
+    color: red;
+}

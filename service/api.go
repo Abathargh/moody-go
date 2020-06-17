@@ -32,8 +32,6 @@ func ServiceMux(w http.ResponseWriter, r *http.Request) {
 		getService(w, r)
 	case http.MethodDelete:
 		deleteService(w, r)
-	case http.MethodPatch:
-		patchService(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}

@@ -49,7 +49,7 @@ func main() {
 		log.Fatal(err)
 	}
 	if err := db.Close(); err != nil {
-		log.Println("an error occurred while attempting to close the model connection")
+		log.Println("an error occurred while attempting to close the models connection")
 		log.Fatal(err)
 	}
 	log.Println("Service service - Shutting Down")

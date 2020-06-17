@@ -1,26 +1,12 @@
 package main
 
 import (
+	"context"
 	"gateway/communication"
-	"gateway/model"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-)
-
-type NeuralState int64
-
-const (
-	Stopped NeuralState = iota
-	Collecting
-	Predicting
-)
-
-var (
-	DataTable      *model.DataTable
-	ActiveServices map[string]*model.Service
-	neuralState    NeuralState
 )
 
 func main() {
@@ -44,7 +30,24 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Start the server
+	serverPort, ok := conf["serverPort"]
+	if !ok {
+		log.Fatal("serverPort parameter not present in conf.json")
+	}
+
+	port, ok := serverPort.(string)
+	if !ok {
+		log.Fatal("Wrong parameter type for serverPort")
+	}
+	server := HttpListenAndServer(port)
+	go func() { log.Fatal(server.ListenAndServe()) }()
+
 	<-quit
+	if err := server.Shutdown(context.TODO()); err != nil {
+		log.Fatal(err)
+	}
+
 	communication.CommClose()
 	log.Println("Gateway - Shutting Down")
 }

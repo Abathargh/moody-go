@@ -1,0 +1,25 @@
+.service_situations {
+    display: flex;
+    height: 100%;
+}
+.column {
+    height: 100%;
+    width: 25%;
+    padding: 1%;
+    margin: 0 2%;
+}
+
+button {
+    border-radius: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background-color: #faf4ff;
+    border: 1px solid #7b84f7;
+    width: 30%;
+    height: 5%;
+}
+
+ button:hover {
+    background-color: #dbddff;
+}

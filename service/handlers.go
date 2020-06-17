@@ -13,10 +13,6 @@ type servicesResponse struct {
 	ServiceCount int64            `json:"count"`
 }
 
-type serviceActivation struct {
-	Action model.StateValue `validate:"min=0,max=1" json:"state"`
-}
-
 func getServices(w http.ResponseWriter, _ *http.Request) {
 	services, count, err := model.GetAllServices()
 	if err != nil {
@@ -65,10 +61,11 @@ func getService(w http.ResponseWriter, r *http.Request) {
 	}
 	service, err := model.GetService(id)
 	if err != nil {
-		service = &model.Service{}
+		w.WriteHeader(http.StatusNotFound)
+		MustEncode(w, ErrorResponse{Error: "not found"})
+		return
 	}
 	// here the response is the situation itself
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	MustEncode(w, service)
 }
@@ -89,53 +86,14 @@ func deleteService(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		MustEncode(w, ErrorResponse{"The situation does not exist"})
+		return
 	}
 
 	if err := model.DeleteService(service); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		MustEncode(w, ErrorResponse{"An error occurred while trying to delete the situation"})
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	MustEncode(w, service)
-}
-
-func patchService(w http.ResponseWriter, r *http.Request) {
-	activation := &serviceActivation{}
-	w.Header().Set("Content-Type", "application/json")
-	ok := MustValidate(r, activation)
-	if !ok {
-		w.WriteHeader(http.StatusBadRequest)
-		MustEncode(w, ErrorResponse{"Bad syntax"})
-		return
-	}
-
-	vars := mux.Vars(r)
-	id, err := strconv.ParseUint(vars["id"], 10, 64)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		MustEncode(w, ErrorResponse{"Bad syntax"})
-		return
-	}
-	service, err := model.GetService(id)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		MustEncode(w, ErrorResponse{"The service does not exist"})
-		return
-	}
-
-	// Update in app Service Map
-	service.State = activation.Action
-	if err := model.PatchStateService(service); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		MustEncode(w, ErrorResponse{"Can't start the service"})
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	MustEncode(w, service)
-
-	if err := r.Body.Close(); err != nil {
-		log.Println(err)
-	}
 }

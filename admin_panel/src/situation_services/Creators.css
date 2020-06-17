@@ -1,0 +1,24 @@
+.creator {
+    border-radius: 25px;
+    background: #ebeeff;
+    border: 1px solid #af7bc7;
+    height: 30%;
+    margin: 1% 1% 25%;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.creator h2 {
+    text-align: center;
+}
+
+.creatorTable {
+    table-layout: fixed;
+    text-align: center;
+}
+
+.nameInput {
+    width: 100%;
+}

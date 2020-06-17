@@ -2,13 +2,13 @@ version: "3"
 
 services:
   moody-broker:
-      image: eclipse-mosquitto
-      networks:
-        - mqtt
-      ports:
-        - 1883:1883
-      command:
-        ["mosquitto", "-v"]
+    image: eclipse-mosquitto
+    networks:
+      - mqtt
+    ports:
+      - 1883:1883
+    command:
+      ["mosquitto", "-v"]
 
   moody-postgres:
     image: postgres
@@ -17,7 +17,7 @@ services:
     networks:
       - postgres
     volumes:
-      - ./postgres/db_init.sql /docker-entrypoint-initdb.d/db_init.sql
+      - ./postgres/db_init.sql:/docker-entrypoint-initdb.d/db_init.sql
       - ./postgres/data:/var/lib/postgresql/data
 
   moody-mongo:
@@ -25,7 +25,7 @@ services:
     networks:
       - mongo
     volumes:
-     - ./mongo/data:/data/db
+      - ./mongo/data:/data/db
 
   moody-api-gw:
     image: nginx:latest
@@ -65,20 +65,35 @@ services:
     depends_on:
       - moody-postgres
 
+  moody-situation:
+    build: ./situation
+    networks:
+      - nginx-back
+      - postgres
+    depends_on:
+      - moody-postgres
 
-#  moody-gateway:
-#      build:
-#        context: gateway
-#        dockerfile: ${DOCKERFILE_ARCH}
-#      volumes:
-#      - ./gateway:/build
-#      - ./config:/root/.moody
-#      networks:
-#        - mqtt
-#      ports:
-#        - 6666:6666
-#      depends_on:
-#        - moody-broker
+  moody-gateway:
+    build: ./gateway
+    networks:
+      - mqtt
+      - nginx-front
+    ports:
+      - 7000:80
+    depends_on:
+      - moody-broker
+      - moody-api-gw
+
+  #moody-adminpanel:
+  #  build: ./adminpanel
+  #  networks:
+  #    - nginx-front:
+  #  ports:
+  #    - 6666:80
+  #  depends_on:
+  #    - moody-gateway
+  #    - moody-api-gw
+
 
 
 networks:

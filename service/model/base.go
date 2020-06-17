@@ -7,9 +7,9 @@ import (
 
 var (
 	NotFound          = fmt.Errorf("record Not Found")
-	UpdateFailedError = fmt.Errorf("model update error")
-	InsertFailedError = fmt.Errorf("model insert error")
-	DeleteFailedError = fmt.Errorf("model delete error")
+	UpdateFailedError = fmt.Errorf("models update error")
+	InsertFailedError = fmt.Errorf("models insert error")
+	DeleteFailedError = fmt.Errorf("models delete error")
 
 	DB *gorm.DB
 )

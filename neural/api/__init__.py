@@ -40,6 +40,6 @@ class Prediction(Resource):
                 data = get_dataset(args["dataset"])
                 logging.info("Starting the training session with dataset {}".format(dataset_name))
                 classifier.train(args["dataset"], list(args["query"].keys()), data)
-            return {"situation": classifier.predict(args["query"])}, 200
+            return {"situation": int(classifier.predict(args["query"]))}, 200
         except DoesNotExist:
             return {"error": "no such dataset"}, 404

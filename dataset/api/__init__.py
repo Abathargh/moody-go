@@ -28,6 +28,14 @@ class Datasets(Resource):
 
 @api.route("/dataset/<string:name>")
 class Dataset(Resource):
+    def get(self, name):
+        try:
+            dataset_meta = DatasetMeta.objects.raw({"_id": name})
+            target_meta = dataset_meta.first().as_dict()
+            return target_meta, 200
+        except DoesNotExist:
+            return {"error": "no such dataset"}, 404
+
     @use_args({"entry": fields.Dict(keys=fields.Str, values=fields.Float, required=True)})
     def post(self, args, name):
         try:
@@ -37,7 +45,7 @@ class Dataset(Resource):
                 # The keys passed as input via the dataset API are different from the ones
                 # used in the dataset.
                 return {"error": "wrong keys for the specified dataset"}, 422
-            DatasetEntry(dataset=name, entry=to_ordered_list(args["entry"])).save()
+            DatasetEntry(dataset=name, entry=to_ordered_list(target_meta["keys"], args["entry"])).save()
             return {"dataset": name, "entry": args["entry"]}, 200
         except DoesNotExist:
             return {"error": "no such dataset"}, 404

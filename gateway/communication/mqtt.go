@@ -11,7 +11,9 @@ import (
 )
 
 const (
-	ruleUpdateTopic       = 0
+	serviceSubTopic       = 0
+	actServerTopic        = 1
+	modeSwitchTopic       = 0
 	situationForwardTopic = 1
 
 	//quiesce     = 50 // Client disconnect quiescence
@@ -30,7 +32,7 @@ type MQTTClient struct {
 type MQTTConfig struct {
 	Host      string   `validate:"nonzero" json:"host"`
 	Port      int      `validate:"nonzero,min=1,max=65536" json:"port"`
-	DataTopic string   `validate:"nonzero" json:"dataTopic"`       // 1 sub topic in the standard mqtt implementation
+	DataTopic []string `validate:"nonzero,len=2" json:"dataTopic"` // 2 sub topic in the standard mqtt implementation
 	PubTopics []string `validate:"nonzero,len=2" json:"pubTopics"` // 2 pub topic in the standard mqtt implementation
 }
 
@@ -52,8 +54,12 @@ func (c *MQTTClient) Init(conf interface{}) error {
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
 		subscribing := true
 		for subscribing {
-			dataToken := client.Subscribe(c.config.DataTopic, 0, dataCallback)
+			dataToken := client.Subscribe(c.config.DataTopic[serviceSubTopic], 0, dataCallback)
 			if dataToken.Wait() && dataToken.Error() != nil {
+				continue
+			}
+			actsToken := client.Subscribe(c.config.DataTopic[actServerTopic], 0, actCallback)
+			if actsToken.Wait() && actsToken.Error() != nil {
 				continue
 			}
 			subscribing = false
@@ -82,7 +88,7 @@ func (c *MQTTClient) Forward(situation string) error {
 }
 
 func (c *MQTTClient) Update(group, rule string) error {
-	topic := fmt.Sprintf("%s/%s", c.config.PubTopics[ruleUpdateTopic], group)
+	topic := fmt.Sprintf("%s/%s", c.config.PubTopics[modeSwitchTopic], group)
 	token := c.client.Publish(topic, 0, false, rule)
 	if token.Wait() && token.Error() != nil {
 		return token.Error()
@@ -92,7 +98,10 @@ func (c *MQTTClient) Update(group, rule string) error {
 
 func (c *MQTTClient) Close() {
 	log.Println("MQTT Client - Shutting down")
-	if token := c.client.Unsubscribe(c.config.DataTopic); token.Wait() && token.Error() != nil {
+	if token := c.client.Unsubscribe(c.config.DataTopic[serviceSubTopic]); token.Wait() && token.Error() != nil {
+		log.Fatal(token.Error())
+	}
+	if token := c.client.Unsubscribe(c.config.DataTopic[actServerTopic]); token.Wait() && token.Error() != nil {
 		log.Fatal(token.Error())
 	}
 	// There's a bug that makes the disconnect hang, probably in the mqtt library.
@@ -108,5 +117,12 @@ func dataCallback(_ mqtt.Client, message mqtt.Message) {
 	data := string(message.Payload())
 	topicTokens := strings.Split(message.Topic(), "/")
 	datatype := topicTokens[len(topicTokens)-1]
-	main.DataHandler(datatype, data)
+	DataHandler(datatype, data)
+}
+
+// The function that is called whenever a MQTT message is received on the
+// actserver topic.
+func actCallback(_ mqtt.Client, message mqtt.Message) {
+	data := string(message.Payload())
+	ActIPHandler(data)
 }
