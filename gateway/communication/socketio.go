@@ -2,7 +2,9 @@ package communication
 
 import (
 	"encoding/json"
-	"github.com/googollee/go-socket.io"
+	"log"
+
+	socketio "github.com/googollee/go-socket.io"
 )
 
 const (
@@ -34,11 +36,13 @@ func NewSocketioServer() (*SocketioServer, error) {
 }
 
 func (ss *SocketioServer) Serve() error {
-	ss.Server.OnConnect("/service_data", func(s socketio.Conn) error {
+	ss.Server.OnConnect("/", func(s socketio.Conn) error {
 		ss.webappSocket = s
+		log.Println(ss.webappSocket)
 		return nil
 	})
 	if err := ss.Server.Serve(); err != nil {
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -46,6 +50,7 @@ func (ss *SocketioServer) Serve() error {
 
 func (ss *SocketioServer) Close() error {
 	if err := ss.Server.Close(); err != nil {
+		log.Println(err)
 		return err
 	}
 	return nil

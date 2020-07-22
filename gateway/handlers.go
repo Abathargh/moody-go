@@ -54,7 +54,7 @@ func activateService(w http.ResponseWriter, r *http.Request) {
 	}
 	resp, err := http.Get(fmt.Sprintf("%sservice/%d", communication.ApiGatewayAddress, servReq.Service))
 	if err != nil || resp.StatusCode == http.StatusInternalServerError {
-		if err == nil {
+		if err != nil {
 			log.Println(err)
 		}
 		models.RespondWithError(w, http.StatusInternalServerError, "server error")

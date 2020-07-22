@@ -24,6 +24,7 @@ var (
 	}
 
 	ApiGatewayAddress string
+	WebAppAddress string
 
 	DataTable      *models.DataTable
 	ActiveServices *models.SynchronizedStringSet
@@ -61,6 +62,11 @@ func StartCommInterface(conf map[string]interface{}) error {
 	ApiGatewayAddress, ok = conf["apiGateway"].(string)
 	if !ok {
 		return errors.New("wrong syntax for the apiGateway field in conf.json")
+	}
+
+	WebAppAddress, ok = conf["webAppAddr"].(string)
+	if !ok {
+		return errors.New("wrong syntax for the webAppAddr field in conf.json")
 	}
 
 	// Start each communication interface

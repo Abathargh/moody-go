@@ -1,4 +1,4 @@
-import React, {Component } from 'react';
+import React, { Component } from 'react';
 
 // NIce centered div for an error in the format:
 // <h1>Error type</h1>
@@ -6,7 +6,7 @@ import React, {Component } from 'react';
 
 class Error extends Component {
     render() {
-        return <div className="Error"><h2>{this.props.name}</h2></div>;
+        return <div className="error"><h2>{this.props.name}</h2></div>;
     }
 }
 
@@ -19,4 +19,4 @@ class ErrorMessage extends Component {
 
 
 export default Error;
-export {ErrorMessage};
+export { ErrorMessage };

@@ -19,8 +19,8 @@ func DataHandler(datatype string, payload string) {
 		log.Println("payload is not a number:" + payload)
 		return
 	}
-	if ActiveServices.Contains(datatype) {
-		log.Println("No such service")
+	if !ActiveServices.Contains(datatype) {
+		log.Printf("No such service '%s'\n", datatype)
 		return
 	}
 	DataTable.Add(datatype, floatPayload)

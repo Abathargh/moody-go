@@ -3,17 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"log"
 	"os"
 	"os/signal"
 	"service/model"
 	"syscall"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 const (
 	dbDialect = "postgres"
+	retries   = 5
 )
 
 var (
@@ -23,6 +25,7 @@ var (
 func main() {
 	// Explicit logs
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetOutput(os.Stdout)
 
 	// Set up a safe exit mechanism
 	quit := make(chan os.Signal)
@@ -32,13 +35,21 @@ func main() {
 	conf = mustInitConf()
 
 	// Db connection
-	postgresConn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable",
-		conf.DbHost, conf.DbPort, conf.DbUser, conf.DbName, conf.DbPass)
-	db, err := gorm.Open(dbDialect, postgresConn)
-	if err != nil {
-		log.Fatal(err)
+	attempt := 0
+	for attempt < retries {
+		postgresConn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable",
+			conf.DbHost, conf.DbPort, conf.DbUser, conf.DbName, conf.DbPass)
+		db, err := gorm.Open(dbDialect, postgresConn)
+		if err == nil {
+			model.DB = db
+			break
+		}
+		attempt += 1
 	}
-	model.DB = db
+
+	if attempt == retries {
+		log.Fatal("Couldn't connect to the database")
+	}
 
 	// Start the server
 	server := HttpListenAndServer(conf.ServerPort)
@@ -48,7 +59,7 @@ func main() {
 	if err := server.Shutdown(context.TODO()); err != nil {
 		log.Fatal(err)
 	}
-	if err := db.Close(); err != nil {
+	if err := model.DB.Close(); err != nil {
 		log.Println("an error occurred while attempting to close the models connection")
 		log.Fatal(err)
 	}

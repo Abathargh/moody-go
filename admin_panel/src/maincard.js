@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Route, Switch } from 'react-router-dom';
 
 import ServiceSituations from './situation_services'
-import Neural from "./neural";
+import Monitor from "./monitor";
 import "./maincard.css"
 
 class MainCard extends Component {
@@ -28,10 +28,9 @@ class MainCard extends Component {
     }
 }
 
-function Monitor() {
-    return "Monitor";   
+function Neural() {
+    return "Neural";
 }
-
 
 function Actuators() {
     return "Actuators";   

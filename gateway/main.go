@@ -12,6 +12,8 @@ import (
 func main() {
 	// Explicit logs
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetOutput(os.Stdout)
+	log.Println("Starting up")
 
 	// Set up a safe exit mechanism
 	quit := make(chan os.Signal)

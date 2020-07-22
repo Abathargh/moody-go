@@ -1,0 +1,9 @@
+.error {
+    border-radius: 25px;
+    background: #ebeeff;
+    border: 1px solid #af7bc7;
+    height: 30%;
+    width: 25%;
+    margin: 1% 1% 25%;
+    text-align: center;
+}

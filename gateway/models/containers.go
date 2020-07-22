@@ -38,21 +38,24 @@ func NewDataTable() *DataTable {
 func (table *DataTable) Add(key string, value float64) {
 	table.mutex.Lock()
 	defer table.mutex.Unlock()
-	data, ok := table.data[key]
-	if ok && data == value {
+	current, ok := table.data[key]
+	if ok && current == value {
 		return
 	}
+
 	table.data[key] = value
 	evt := DataEvent{
 		ChangedKey:    key,
 		ChangedValue:  value,
-		TableSnapshot: table.CopyUnderlyingMap(),
+		TableSnapshot: table.data,
 	}
 	table.Notify(evt)
 	log.Println(table)
 }
 
 func (table *DataTable) Remove(key string) {
+	table.mutex.Lock()
+	defer table.mutex.Unlock()
 	delete(table.data, key)
 }
 

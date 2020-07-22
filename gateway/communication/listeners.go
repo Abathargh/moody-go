@@ -59,7 +59,7 @@ func (df *DataForwarder) ListenForUpdates() {
 	for evt := range df.incomingDataChan {
 		switch NeuralState.Mode {
 		case models.Stopped:
-			log.Printf("New data service[%s]: %s", evt.ChangedKey, evt.ChangedValue)
+			log.Printf("New data service[%s]: %f", evt.ChangedKey, evt.ChangedValue)
 		case models.Collecting:
 			forwardToDataset(evt)
 		case models.Predicting:
