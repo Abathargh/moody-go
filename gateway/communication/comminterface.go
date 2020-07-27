@@ -6,12 +6,23 @@ import (
 	"log"
 )
 
+// This is the interface that defines the API for a Client
+// To implement a new protocol, add a Client struct to the package
+// and append it to the client mappings in the var section of this file
 type Client interface {
 	Init(conf interface{}) error
 	Connect() error
 	Forward(situation string) error
-	Update(group, rule string) error
+	SwitchToActuatorServer()
+	StopTicker()
 	Close()
+}
+
+// A ticker periodically sends a message to each actuator using a given protocol
+// Its Tick method must be called in a separate goroutine since it's blocking
+type Ticker interface {
+	Tick()
+	Done()
 }
 
 const (
@@ -24,7 +35,7 @@ var (
 	}
 
 	ApiGatewayAddress string
-	WebAppAddress string
+	WebAppAddress     string
 
 	DataTable      *models.DataTable
 	ActiveServices *models.SynchronizedStringSet
@@ -116,9 +127,15 @@ func CommForward(situation string) {
 	}
 }
 
-func CommUpdate(group, rule string) {
+func CommSwitchToActuatorServer() {
 	for _, ifc := range clientMapping {
-		ifc.Update(group, rule)
+		ifc.SwitchToActuatorServer()
+	}
+}
+
+func CommStopTickers() {
+	for _, ifc := range clientMapping {
+		ifc.StopTicker()
 	}
 }
 

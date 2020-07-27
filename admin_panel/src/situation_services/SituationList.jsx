@@ -29,7 +29,7 @@ export default class SituationList extends Component {
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Activate</th>
+                                <th>Remove</th>
                             </tr>
                         </thead>
                         <tbody>

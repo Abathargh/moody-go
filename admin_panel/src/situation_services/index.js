@@ -4,7 +4,6 @@ import ActivatedList from "./ActivatedList";
 import SituationList from "./SituationList"
 import CreatorBox from "./CreatorBox";
 import Loading from "./Loading";
-import Error from "./Error";
 import "./SituationServices.css"
 
 
@@ -52,7 +51,7 @@ export default class ServiceSituations extends Component {
                 serviceList: responses[serviceIndex].services.filter(service => !responses[activatedServiceIndex].services.includes(service.name)),
                 activatedServiceList: responses[activatedServiceIndex].services
             }), error => console.log(error))
-            .catch(error => this.setState({ isLoaded: true, error }))
+            .catch(error => this.setState({ isLoaded: true, error }));
     }
 
     handleSituationRemoval(id) {
@@ -120,7 +119,7 @@ export default class ServiceSituations extends Component {
                 },
                 error => this.setState({
                     isLoaded: true,
-                    error
+                    error: error
                 })
             )
     }
@@ -147,7 +146,7 @@ export default class ServiceSituations extends Component {
                 },
                 error => this.setState({
                     isLoaded: true,
-                    error
+                    error: error
                 })
             )
     }
@@ -174,16 +173,26 @@ export default class ServiceSituations extends Component {
                         this.setState({ isLoaded: true, serviceList: dataList, allServices: allServices })
                     }
                 },
-                error => this.setState({ isLoaded: true, error })
+                error => this.setState({ isLoaded: true, error: error })
             );
     }
 
     handleCreateSituation(name) {
-        this.createNew(SITUATION, name);
+        const situations = this.state.situationList;
+        if (!situations.some(situation => situation.name === name)) {
+            this.createNew(SITUATION, name);
+            return
+        }
+        alert("The situation alredy exists!")
     }
 
     handleCreateService(name) {
-        this.createNew(SERVICE, name);
+        const services = this.state.serviceList;
+        if (!services.some(service => service.name === name)) {
+            this.createNew(SERVICE, name);
+            return
+        }
+        alert("The service alredy exists!")
     }
 
 
@@ -192,46 +201,43 @@ export default class ServiceSituations extends Component {
         const { situationList, serviceList, activatedServiceList, isLoaded, error } = this.state;
         if (error) {
             console.log(error);
-            return (
-                <div className="service_situations">
-                    <Error name={error.toString()} />
-                </div>);
         }
 
         if (!isLoaded) {
             return <Loading />;
-        } else {
-            return (
-                <div className="service_situations">
-                    <div className="column">
-                        <ServiceList
-                            serviceList={serviceList}
-                            handleServiceActivation={this.handleServiceActivation}
-                            handleServiceRemoval={this.handleServiceRemoval}
-                        />
-                        <ActivatedList
-                            activatedServiceList={activatedServiceList}
-                            handleServiceDeactivation={this.handleServiceDeactivation}
-                        />
-                    </div>
-                    <div className="column">
-                        <SituationList
-                            situationList={situationList}
-                            handleSituationRemoval={this.handleSituationRemoval}
-                        />
-                    </div>
-                    <div className="column">
-                        <CreatorBox
-                            name="Situation"
-                            handleCreate={this.handleCreateSituation}
-                        />
-                        <CreatorBox
-                            name="Service"
-                            handleCreate={this.handleCreateService}
-                        />
-                    </div>
-                </div>
-            );
         }
+
+        return (
+            <div className="service_situations">
+                <div className="column">
+                    <ServiceList
+                        serviceList={serviceList}
+                        handleServiceActivation={this.handleServiceActivation}
+                        handleServiceRemoval={this.handleServiceRemoval}
+                    />
+                    <ActivatedList
+                        activatedServiceList={activatedServiceList}
+                        handleServiceDeactivation={this.handleServiceDeactivation}
+                    />
+                </div>
+                <div className="column">
+                    <SituationList
+                        situationList={situationList}
+                        handleSituationRemoval={this.handleSituationRemoval}
+                    />
+                </div>
+                <div className="column">
+                    <CreatorBox
+                        name="Situation"
+                        handleCreate={this.handleCreateSituation}
+                    />
+                    <CreatorBox
+                        name="Service"
+                        handleCreate={this.handleCreateService}
+                    />
+                </div>
+            </div>
+        );
     }
 }
+

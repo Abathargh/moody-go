@@ -27,10 +27,11 @@ func DataHandler(datatype string, payload string) {
 }
 
 func ActIPHandler(payload string) {
-	if ok := isValidIP(payload); ok {
+	if ok := isValidIP(payload); !ok {
 		log.Printf("a badly formatted ip was received from an actuator node: %s\n", payload)
 		return
 	}
+	log.Printf("Actuator server detected @ %s\n", payload)
 	ActuatorIPs.Add(payload)
 }
 

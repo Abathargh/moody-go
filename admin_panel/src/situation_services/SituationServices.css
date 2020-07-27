@@ -9,15 +9,13 @@
     margin: 0 2%;
 }
 
-button {
+.service_situations button {
     border-radius: 10px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     background-color: #faf4ff;
     border: 1px solid #7b84f7;
-    width: 30%;
-    height: 5%;
 }
 
  button:hover {

@@ -1,6 +1,9 @@
+.monitor {
+    padding: 2%;
+}
+
 .serviceGrid {
     display: grid;
-    padding: 3%;
     grid-template-columns: auto auto auto auto auto auto;
 }
 
@@ -14,7 +17,7 @@
 }
 
 .error {
-    margin: 1%;
+    text-align: center;
     border-radius: 25px;
     background: #ebeeff;
     border: 1px solid #af7bc7;

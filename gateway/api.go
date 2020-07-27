@@ -2,12 +2,13 @@ package main
 
 import (
 	"gateway/communication"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
-func AllowAllCorsMiddleware(h http.Handler) http.Handler {
+func allowAllCorsMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		applyHeaders(communication.WebAppAddress, w)
 		if r.Method == http.MethodOptions {
@@ -17,14 +18,31 @@ func AllowAllCorsMiddleware(h http.Handler) http.Handler {
 	})
 }
 
+func logRequestResponseMiddleWare(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s", r.Method, r.URL.Path)
+
+		lrw := NewLoggingResponseWriter(w, r)
+		h.ServeHTTP(lrw, r)
+
+		statusCode := lrw.statusCode
+		method := lrw.method
+		url := lrw.url
+
+		log.Printf("%s %s %d %s", method, url, statusCode, http.StatusText(statusCode))
+	})
+}
+
 func HttpListenAndServer(port string) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/neural_state", neuralStateMux)
 	router.HandleFunc("/actuator_mode", actuatorModeMux)
+	router.HandleFunc("/actuators", actuatorMux)
 	router.HandleFunc("/sensor_service", serviceMux)
 	router.HandleFunc("/situation", situationMux)
 	router.Handle("/socket.io/", communication.SioServer.Server)
-	router.Use(AllowAllCorsMiddleware)
+	router.Use(allowAllCorsMiddleware)
+	router.Use(logRequestResponseMiddleWare)
 	server := &http.Server{Addr: port, Handler: router}
 	return server
 }
@@ -41,8 +59,24 @@ func neuralStateMux(w http.ResponseWriter, r *http.Request) {
 
 func actuatorModeMux(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodGet:
+		getActuatorMode(w, r)
 	case http.MethodPost:
 		setActuatorMode(w, r)
+	case http.MethodOptions:
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func actuatorMux(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		getActuators(w, r)
+	case http.MethodPost:
+		addMapping(w, r)
+	case http.MethodDelete:
+		deleteMappings(w, r)
 	case http.MethodOptions:
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -75,6 +109,8 @@ func situationMux(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CORS Middleware Headers
+
 func applyHeaders(acceptFrom string, w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", acceptFrom)
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -93,4 +129,25 @@ func respOptions(acceptFrom string, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Set("Content-Length", "0")
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// Request/Response logger
+
+type loggingResponseWriter struct {
+	http.ResponseWriter
+	request    *http.Request
+	statusCode int
+	method     string
+	url        string
+}
+
+func NewLoggingResponseWriter(w http.ResponseWriter, r *http.Request) *loggingResponseWriter {
+	return &loggingResponseWriter{w, r, http.StatusOK, "", ""}
+}
+
+func (lrw *loggingResponseWriter) WriteHeader(code int) {
+	lrw.statusCode = code
+	lrw.method = lrw.request.Method
+	lrw.url = lrw.request.URL.Path
+	lrw.ResponseWriter.WriteHeader(code)
 }

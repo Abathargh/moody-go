@@ -2,6 +2,7 @@ package communication
 
 import (
 	"encoding/json"
+	"gateway/models"
 	"log"
 
 	socketio "github.com/googollee/go-socket.io"
@@ -38,7 +39,6 @@ func NewSocketioServer() (*SocketioServer, error) {
 func (ss *SocketioServer) Serve() error {
 	ss.Server.OnConnect("/", func(s socketio.Conn) error {
 		ss.webappSocket = s
-		log.Println(ss.webappSocket)
 		return nil
 	})
 	if err := ss.Server.Serve(); err != nil {
@@ -62,6 +62,17 @@ func (ss *SocketioServer) ForwardServiceData(evt ServiceDataEvent) {
 }
 
 func (ss *SocketioServer) ForwardActuatorData(evt ActuatorConnectedEvent) {
-	jsonData, _ := json.Marshal(&evt)
+	mappings, err := models.GetActuatorMapping(evt.IP)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	actuator := models.Actuator{
+		IP:       evt.IP,
+		Mappings: mappings.DataTable,
+	}
+
+	jsonData, _ := json.Marshal(&actuator)
 	ss.webappSocket.Emit(eventActuator, jsonData)
 }

@@ -28,8 +28,8 @@ type NeuralPredictionResponse struct {
 
 type NeuralState struct {
 	Mode        DataMode `json:"mode" validate:"min=0,max=2"`
-	Dataset     string   `json:"dataset" validate:"nonzero"`
-	dataSetKeys []string `json:"-" validate:"-"` // private field for internal use only
+	Dataset     string   `json:"dataset"` // not nonzero because it may be empty when stopped, maybe check
+	dataSetKeys []string `validate:"-"`   // private field for internal use only
 }
 
 type DatasetMeta struct {
@@ -42,7 +42,8 @@ func (s *NeuralState) DatasetKeysIfExists() ([]string, error) {
 		return s.dataSetKeys, nil
 	}
 
-	resp, err := http.Get(fmt.Sprintf("http://dataset/%s", s.Dataset))
+	// TODO URL in conf
+	resp, err := http.Get(fmt.Sprintf("http://moody-api-gw/dataset/%s", s.Dataset))
 	if err != nil {
 		return nil, err
 	}

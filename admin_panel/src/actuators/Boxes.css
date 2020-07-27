@@ -1,0 +1,161 @@
+.actuators {
+    padding: 2%;
+    width: 100%;
+    height: 100%;
+}
+
+.activateModeBox {
+    border-radius: 25px;
+    background: #ebeeff;
+    border: 1px solid #af7bc7;
+
+    width: 20%;
+    height: 20%;
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+}
+
+.activateModeBox button {
+    border: 1px solid #af7bc7;
+    border-radius: 25px;
+    width: 13vw;
+    height: 5vh;
+}
+
+.activateModeBox button:hover {
+    background: #ffffff;
+}
+
+.actuatorGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+}
+
+.actuatorBox {
+    text-align: center;
+    border-radius: 25px;
+    background: #ebeeff;
+    border: 1px solid #af7bc7;
+    width: 90%;
+    height: 40vh;
+    margin-bottom: 5%;
+    overflow: hidden;
+}
+
+.manageMapping {
+    margin: auto;
+    width: 90%;
+    text-align: center;
+    padding: 1%;
+}
+
+.mappingOption {
+    display: inline;
+    margin: 0.2%;
+}
+
+.manageMapping button {
+    margin-top: 2%;
+    border-radius: 5px;
+    background: #f3f5ff;
+    border: 1.1px solid #af7bc7;
+}
+
+
+.manageMapping button:hover {
+    background: #ffffff;
+}
+
+.inputBox {
+    width: 100%;
+    margin: 0.2%;
+    border-radius: 5px;
+    border: 1px solid #af7bc7;    
+}
+
+.actuatorBoxTable {
+    height: 80%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.actTable {
+    display: block;
+    empty-cells: show;
+    height: 100%;
+    overflow: hidden;
+}
+
+.actTable thead {
+    position: relative;
+    display: block;
+    width: 96%;
+    margin-left: 1%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(218, 206, 250));
+}
+
+.actTable tbody {
+    display: block; 
+    position: relative;
+    width: 100%;
+    height: 70%; 
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.actTable tr {
+    width: 100%;
+    display:flex;
+}
+
+.actTable td, .actTable th{
+    flex-basis: 100%;
+    flex-grow: 2;
+    display: block;
+    flex-basis: 20%;
+    flex-grow: 1;
+    padding-bottom: 5%;
+}
+
+.actTable td, .actTable tr, .actTable th {
+    font-size: large;
+    padding: 2%;
+}
+
+.actTable tbody::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(255, 197, 197, 0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+}
+  
+.actTable tbody::-webkit-scrollbar {
+    width: 12px;
+    background-color: #F5F5F5;
+}
+  
+.actTable tbody::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: rgb(235, 228, 255)
+}
+
+.empty {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 40% 40%;
+}
+
+.empty div {
+    width: 90%;
+    margin: 1%; 
+}
+
+.error {
+    text-align: center;
+    border-radius: 25px;
+    background: #ebeeff;
+    border: 1px solid #af7bc7;
+}

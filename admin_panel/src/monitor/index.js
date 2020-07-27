@@ -53,9 +53,9 @@ export default class Monitor extends Component {
 
     render() {
         const { serviceList, isLoaded, error } = this.state;
-        if (error) return <div><Error /></div>
-        if (!isLoaded) return <div><Loading /></div>
-        if (serviceList.length === 0) return <div><Empty /></div>
+        if (error) return <div className="monitor"><Error /></div>
+        if (!isLoaded) return <div className="monitor"><Loading /></div>
+        if (serviceList.length === 0) return <div className="monitor"><Empty /></div>;
 
         return <div className="monitor"><ServiceGrid serviceList={serviceList} /></div>;
     };

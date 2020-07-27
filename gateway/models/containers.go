@@ -128,6 +128,7 @@ func (il *SynchronizedStringSet) Add(elem string) {
 	il.mutex.Lock()
 	defer il.mutex.Unlock()
 	il.set[elem] = true
+	il.Notify(elem)
 }
 
 func (il *SynchronizedStringSet) Remove(elem string) {
@@ -136,8 +137,22 @@ func (il *SynchronizedStringSet) Remove(elem string) {
 	delete(il.set, elem)
 }
 
+func (il *SynchronizedStringSet) Clear() {
+	il.mutex.Lock()
+	defer il.mutex.Unlock()
+	il.set = make(map[string]bool)
+}
+
 func (il *SynchronizedStringSet) Contains(elem string) bool {
+	il.mutex.Lock()
+	defer il.mutex.Unlock()
 	return il.set[elem]
+}
+
+func (il *SynchronizedStringSet) Empty() bool {
+	il.mutex.Lock()
+	defer il.mutex.Unlock()
+	return len(il.set) == 0
 }
 
 func (il *SynchronizedStringSet) AsSlice() []string {

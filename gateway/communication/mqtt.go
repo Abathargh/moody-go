@@ -2,12 +2,13 @@ package communication
 
 import (
 	"fmt"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/mitchellh/mapstructure"
-	"gopkg.in/validator.v2"
 	"log"
 	"strings"
 	"time"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/mitchellh/mapstructure"
+	"gopkg.in/validator.v2"
 )
 
 const (
@@ -17,7 +18,8 @@ const (
 	situationForwardTopic = 1
 
 	//quiesce     = 50 // Client disconnect quiescence
-	pingTimeout = 2 * time.Second
+	pingTimeout         = 2 * time.Second
+	topicTickerInterval = 10 * time.Second
 )
 
 // MQTTClient implements the communication.Client ui
@@ -26,6 +28,7 @@ const (
 type MQTTClient struct {
 	client mqtt.Client
 	config MQTTConfig
+	ticker *TopicTicker
 }
 
 // MQTTConfig stores the information contained in the mqtt section of the conf.json
@@ -34,6 +37,45 @@ type MQTTConfig struct {
 	Port      int      `validate:"nonzero,min=1,max=65536" json:"port"`
 	DataTopic []string `validate:"nonzero,len=2" json:"dataTopic"` // 2 sub topic in the standard mqtt implementation
 	PubTopics []string `validate:"nonzero,len=2" json:"pubTopics"` // 2 pub topic in the standard mqtt implementation
+}
+
+// Ticker implementation for the MQTT protocol
+type TopicTicker struct {
+	endTickChan  chan bool
+	tickInterval time.Duration
+	ticker       *time.Ticker
+	topic        string
+	client       *mqtt.Client
+}
+
+// Creates a new TopicTicker that periodically sends MQTT messages on the passed topic.
+func NewTopicTicker(tickInterval time.Duration, topic string, client *mqtt.Client) *TopicTicker {
+	return &TopicTicker{
+		tickInterval: tickInterval,
+		endTickChan:  make(chan bool),
+		topic:        topic,
+		client:       client,
+	}
+}
+
+func (tt *TopicTicker) Tick() {
+	tt.ticker = time.NewTicker(tt.tickInterval)
+	for {
+		select {
+		case <-tt.endTickChan:
+			return
+		case <-tt.ticker.C:
+			token := (*tt.client).Publish(tt.topic, 0, false, "1")
+			if token.Wait() && token.Error() != nil {
+				log.Println(token.Error())
+			}
+		}
+	}
+}
+
+func (tt *TopicTicker) Done() {
+	tt.ticker.Stop()
+	tt.endTickChan <- true
 }
 
 // Initializes the MQTTClient, for now we don't use a singleton in case in the future there's the need to
@@ -67,6 +109,7 @@ func (c *MQTTClient) Init(conf interface{}) error {
 	})
 
 	c.client = mqtt.NewClient(opts)
+	c.ticker = NewTopicTicker(topicTickerInterval, c.config.PubTopics[modeSwitchTopic], &c.client)
 	return nil
 }
 
@@ -87,13 +130,16 @@ func (c *MQTTClient) Forward(situation string) error {
 	return nil
 }
 
-func (c *MQTTClient) Update(group, rule string) error {
-	topic := fmt.Sprintf("%s/%s", c.config.PubTopics[modeSwitchTopic], group)
-	token := c.client.Publish(topic, 0, false, rule)
+func (c *MQTTClient) SwitchToActuatorServer() {
+	token := c.client.Publish(c.config.PubTopics[modeSwitchTopic], 0, false, "1")
 	if token.Wait() && token.Error() != nil {
-		return token.Error()
+		log.Println(token.Error())
 	}
-	return nil
+	go c.ticker.Tick()
+}
+
+func (c *MQTTClient) StopTicker() {
+	c.ticker.Done()
 }
 
 func (c *MQTTClient) Close() {

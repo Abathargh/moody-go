@@ -3,26 +3,28 @@ import { Route, Switch } from 'react-router-dom';
 
 import ServiceSituations from './situation_services'
 import Monitor from "./monitor";
+import Actuators from "./actuators";
+
 import "./maincard.css"
 
 class MainCard extends Component {
     render() {
-        return(
+        return (
             <div className="maincard">
-            <Switch>
-            <Route path="/services_situations">
-                <ServiceSituations />
-            </Route>
-            <Route path="/neural">
-                <Neural />
-            </Route>
-            <Route path="/actuators">
-                <Actuators />
-            </Route>
-            <Route path="/">
-                <Monitor />
-            </Route>
-            </Switch>
+                <Switch>
+                    <Route path="/services_situations">
+                        <ServiceSituations />
+                    </Route>
+                    <Route path="/neural">
+                        <Neural />
+                    </Route>
+                    <Route path="/actuators">
+                        <Actuators />
+                    </Route>
+                    <Route path="/">
+                        <Monitor />
+                    </Route>
+                </Switch>
             </div>
         );
     }
@@ -32,8 +34,5 @@ function Neural() {
     return "Neural";
 }
 
-function Actuators() {
-    return "Actuators";   
-}
 
 export { MainCard };
