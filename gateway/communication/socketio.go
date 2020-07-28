@@ -27,6 +27,9 @@ type ActuatorConnectedEvent struct {
 	IP string `json:"ip"`
 }
 
+// Creates a new SocketioServer instance
+// Its API is used by the data and actuators listeners
+// to forward messages to the webapp
 func NewSocketioServer() (*SocketioServer, error) {
 	server, err := socketio.NewServer(nil)
 	if err != nil {
@@ -36,6 +39,8 @@ func NewSocketioServer() (*SocketioServer, error) {
 	return &SocketioServer{Server: server}, nil
 }
 
+// Catches the connect event coming from the webapp and
+// saves a reference to the connection within the object.
 func (ss *SocketioServer) Serve() error {
 	ss.Server.OnConnect("/", func(s socketio.Conn) error {
 		ss.webappSocket = s
@@ -48,6 +53,7 @@ func (ss *SocketioServer) Serve() error {
 	return nil
 }
 
+// Closes the Socketio Server
 func (ss *SocketioServer) Close() error {
 	if err := ss.Server.Close(); err != nil {
 		log.Println(err)
@@ -56,11 +62,14 @@ func (ss *SocketioServer) Close() error {
 	return nil
 }
 
+// Marshals and forwards data referring a service event
 func (ss *SocketioServer) ForwardServiceData(evt ServiceDataEvent) {
 	jsonData, _ := json.Marshal(&evt)
 	ss.webappSocket.Emit(eventData, jsonData)
 }
 
+// Gets a mapping of an actuator server that just connected to the gateway and forwards
+// it to the webapp
 func (ss *SocketioServer) ForwardActuatorData(evt ActuatorConnectedEvent) {
 	mappings, err := models.GetActuatorMapping(evt.IP)
 	if err != nil {

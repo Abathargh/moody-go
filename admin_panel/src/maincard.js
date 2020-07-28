@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 
 import ServiceSituations from './situation_services'
 import Monitor from "./monitor";
+import Neural from "./neural"
 import Actuators from "./actuators";
 
 import "./maincard.css"
@@ -29,10 +30,5 @@ class MainCard extends Component {
         );
     }
 }
-
-function Neural() {
-    return "Neural";
-}
-
 
 export { MainCard };

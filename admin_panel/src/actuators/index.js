@@ -43,22 +43,25 @@ export default class Actuators extends Component {
     componentDidMount() {
         const fetchPromises = urls.map(url => fetch(url).then(response => response.json()))
         Promise.all(fetchPromises)
-            .then(responses =>
+            .then(responses => {
+                const situations = responses[situationIndex].situations;
+                const actuators = responses[activatedActuatorServerIndex].actuatorList;
                 this.setState({
                     actuatorMode: responses[activateModeIndex].mode,
-                    actuatorList: responses[activatedActuatorServerIndex].actuatorList.map(actuator => new Actuator(actuator.ip, actuator.mappings)),
-                    situationList: responses[situationIndex].situations,
+                    actuatorList: actuators.map(actuator => Actuator.init(actuator.ip, actuator.mappings, situations)),
+                    situationList: situations,
                     isLoaded: true,
                 })
-            )
+            })
             .catch(
                 error => this.setState({ isLoaded: true, error })
             );
 
         const socket = socketIOClient(socketioEndpoint);
         socket.on(socketioEvent, data => {
+            const situations = this.state.situationList;
             let rawActuator = JSON.parse(atob(data));
-            let dataActuator = new Actuator(rawActuator.ip, rawActuator.mappings);
+            let dataActuator = Actuator.init(rawActuator.ip, rawActuator.mappings, situations);
             let actuators = this.state.actuatorList;
             actuators.push(dataActuator);
             this.setState({ isLoaded: true, actuatorList: actuators });
@@ -68,6 +71,12 @@ export default class Actuators extends Component {
     addMapping(ip, situation, action) {
         if (!ip || !situation || !action) {
             alert("Can't have any empty field!");
+            return
+        }
+
+        action = Number(action);
+        if (!Number.isInteger(action) || action < 0 || action > 255) {
+            alert("Actions must be codified with a byte (0 < x < 255)");
             return
         }
 
@@ -88,7 +97,8 @@ export default class Actuators extends Component {
             .then(resp => resp.json())
             .then(
                 response => {
-                    actuators[targetIndex].mappingList.push(response);
+                    const situations = this.state.situationList;
+                    actuators[targetIndex].mappingList.push(Actuator.mappingWithName(response, situations));
                     this.setState({ actuatorList: actuators, isLoaded: true })
                 },
                 error => this.setState({ isLoaded: true, error: error })
@@ -136,7 +146,7 @@ export default class Actuators extends Component {
     render() {
         const { actuatorMode, actuatorList, situationList, isLoaded, error } = this.state;
         if (error) return <div className="actuators"><Error error={error.toString()} /></div>
-        if (!isLoaded) return <div className="actuators"><Loading /></div>
+        if (!isLoaded) return <div className="actuators"><div className="empty"><Loading /><DeactivateServerMode handleSwitch={() => this.switchActuatorMode(true)} /></div></div>
         if (actuatorMode) return <div className="actuators"><ActivateServerMode handleSwitch={() => this.switchActuatorMode(false)} /></div>
         if (actuatorList.length === 0) return <div className="actuators"><div className="empty"><Empty /><DeactivateServerMode handleSwitch={() => this.switchActuatorMode(true)} /></div></div>;
 

@@ -1,19 +1,18 @@
-import React, {Component, useEffect, useState} from "react";
-import socketIOClient from "socket.io-client";
-
-const ENDPOINT = "http://moodybase:7000";
+import React, { Component } from "react";
 
 
-export default function DatasetList() {
-    const [response, setResponse] = useState("");
-
-    useEffect(() => {
-        const socket = socketIOClient(ENDPOINT);
-        socket.on("data", data => {
-            setResponse(data);
-        });
-    }, []);
-
-    return <p>{response}</p>;
-
+export default class DatasetList extends Component {
+    render() {
+        return (
+            <div className="datasetList">
+                <ul>
+                    {
+                        this.props.datasetList.map(
+                            dataset => <li>{dataset.name}: {dataset.keys.toString()}</li>
+                        )
+                    }
+                </ul>
+            </div>
+        );
+    }
 }
