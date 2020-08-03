@@ -1,8 +1,12 @@
 export default class Actuator {
     static init(ip, mappingList, situationList) {
+        console.log(situationList);
+        console.log(mappingList);
         mappingList.forEach(mapping => {
             const targetSituationIndex = situationList.findIndex(situation => situation.id === mapping.situation);
-            mapping.situation = situationList[targetSituationIndex].name;
+            if (targetSituationIndex !== -1) {
+                mapping.situation = situationList[targetSituationIndex].name;
+            }
         });
         return new Actuator(ip, mappingList);
     }

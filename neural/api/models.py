@@ -1,4 +1,4 @@
-from typing import Set, List
+from typing import Set, List, Dict
 import pymodm
 
 
@@ -11,6 +11,17 @@ def strip_neural_meta(keys: List[str]) -> Set[str]:
     without the keys
     """
     return set(keys) - neural_meta_keys
+
+
+def to_ordered_list(ordered_keys: List[str], data: Dict[str, float]) -> List[float]:
+    """
+    Converts a dict containing a single entry of a dataset into a list with the dict
+    values in the right order.
+    """
+    ordered_list = list()
+    for key in ordered_keys:
+        ordered_list.append(data[key])
+    return ordered_list
 
 
 class DatasetMeta(pymodm.MongoModel):

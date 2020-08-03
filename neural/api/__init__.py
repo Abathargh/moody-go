@@ -6,7 +6,7 @@ from webargs import fields
 
 from typing import List
 from pymodm.errors import DoesNotExist
-from .models import DatasetMeta, DatasetEntry, strip_neural_meta
+from .models import DatasetMeta, DatasetEntry, strip_neural_meta, to_ordered_list
 from .neural import NeuralInterface
 
 __all__ = ["app"]
@@ -20,9 +20,8 @@ classifier = NeuralInterface()
 
 def get_dataset(dataset_name: str) -> List[List[float]]:
     logging.info("Retrieving dataset {} from the db".format(dataset_name))
-    entries = DatasetEntry.objects.raw({"dataset", dataset_name})
-    logging.info(entries)
-    return [entry for entry in entries]
+    entries = DatasetEntry.objects.raw({"dataset": dataset_name}).only("entry")
+    return [entry.entry for entry in entries]
 
 
 @api.route("/predict")
@@ -39,8 +38,10 @@ class Prediction(Resource):
                 return {"error": "wrong keys for the specified dataset"}, 422
             if args["dataset"] != classifier.dataset:
                 data = get_dataset(args["dataset"])
-                logging.info("Starting the training session with dataset {}".format(dataset_name))
-                classifier.train(args["dataset"], list(args["query"].keys()), data)
-            return {"situation": int(classifier.predict(args["query"]))}, 200
+                logging.info("Starting the training session with dataset {}".format(args["dataset"]))
+                classifier.train(args["dataset"], list(target_meta["keys"]), data)
+            stripped_keys = list(strip_neural_meta(target_meta["keys"]))
+            ordered_query = to_ordered_list(stripped_keys, args["query"])
+            return {"situation": int(classifier.predict(ordered_query))}, 200
         except DoesNotExist:
             return {"error": "no such dataset"}, 404

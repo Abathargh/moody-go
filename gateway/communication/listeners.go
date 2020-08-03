@@ -135,7 +135,7 @@ func forwardToNeural(evt models.DataEvent) {
 
 		log.Println("Prediction ", prediction, prediction.Situation)
 		// Situation may not exist anymore, maybe check?
-		CommForward(string(prediction.Situation))
+		CommForward(fmt.Sprintf("%d", prediction.Situation))
 	}
 }
 

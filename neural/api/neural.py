@@ -9,6 +9,7 @@ import logging
 import pandas as pd
 
 from typing import List
+from datetime import datetime
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -48,6 +49,7 @@ class NeuralInterface:
         :dataset_id: int, the id of thee training session to use for the predictions
         :return: None
         """
+
         neural_data = pd.DataFrame(numpy.array(
             dataset), columns=numpy.array(datatypes))
         datatypes.remove("situation")
@@ -84,6 +86,10 @@ class NeuralInterface:
         :param query: the data that has been read that requests the prediction
         :return: int, the id of the inferred situation
         """
+        now = datetime.now()
+        query.append(now.hour)
+        query.append(now.minute)
+
         query_df = pd.DataFrame([query], columns=self._datatypes)
         query_df = self._scaler.transform(query_df)
         result = self._neural_net.predict(query_df)
