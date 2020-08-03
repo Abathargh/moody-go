@@ -7,7 +7,6 @@ import (
 	"gateway/models"
 	"log"
 	"net/http"
-	"time"
 )
 
 // Observer that forwards data to the appropriate service
@@ -57,9 +56,10 @@ func sameStringSlice(a, b []string) bool {
 // for future use with the cache
 func (df *DataForwarder) ListenForUpdates() {
 	for evt := range df.incomingDataChan {
+		log.Printf("New data, stat: %d => service[%s]: %f", NeuralState.Mode, evt.ChangedKey, evt.ChangedValue)
 		switch NeuralState.Mode {
 		case models.Stopped:
-			log.Printf("New data service[%s]: %f", evt.ChangedKey, evt.ChangedValue)
+			continue
 		case models.Collecting:
 			forwardToDataset(evt)
 		case models.Predicting:
@@ -71,22 +71,23 @@ func (df *DataForwarder) ListenForUpdates() {
 }
 
 func forwardToDataset(evt models.DataEvent) {
+	if Situation == nil {
+		log.Println("No situation is currently set!")
+		return
+	}
+
 	if sameStringSlice(ActiveServices.AsSlice(), DataTable.Keys()) {
-		entry := evt.TableSnapshot
 		// Decorate table copy with situation/time information
-		entry["situation"] = float64(Situation.SituationId)
-		hour, minute, _ := time.Now().Clock()
-		entry["hour"] = float64(hour)
-		entry["minute"] = float64(minute)
 		req := models.DatasetEntryRequest{
-			Entry: entry,
+			Situation: Situation.SituationId,
+			Entry:     evt.TableSnapshot,
 		}
 		jsonTable, err := json.Marshal(req)
 		if err != nil {
 			log.Println(err)
 			return
 		}
-		datasetEndpoint := fmt.Sprintf("%s/%s/%s", ApiGatewayAddress, "dataset", NeuralState.Dataset)
+		datasetEndpoint := fmt.Sprintf("%s%s/%s", ApiGatewayAddress.String(), "dataset", NeuralState.Dataset)
 		resp, postErr := http.Post(datasetEndpoint, "application/json", bytes.NewBuffer(jsonTable))
 		if postErr != nil {
 			log.Println(postErr)
@@ -96,6 +97,7 @@ func forwardToDataset(evt models.DataEvent) {
 			log.Println("The specified dataset does not exist")
 			return
 		}
+		log.Printf("Succesfully added the record to the dataset %s", NeuralState.Dataset)
 	}
 }
 
@@ -111,7 +113,7 @@ func forwardToNeural(evt models.DataEvent) {
 			log.Println(err)
 			return
 		}
-		datasetEndpoint := fmt.Sprintf("%s/%s", ApiGatewayAddress, "neural")
+		datasetEndpoint := fmt.Sprintf("%s%s", ApiGatewayAddress.String(), "neural/predict")
 		resp, postErr := http.Post(datasetEndpoint, "application/json", bytes.NewBuffer(jsonTable))
 		if postErr != nil {
 			log.Println(postErr)
@@ -131,6 +133,7 @@ func forwardToNeural(evt models.DataEvent) {
 			return
 		}
 
+		log.Println("Prediction ", prediction, prediction.Situation)
 		// Situation may not exist anymore, maybe check?
 		CommForward(string(prediction.Situation))
 	}

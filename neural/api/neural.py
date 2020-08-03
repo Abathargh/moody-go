@@ -16,6 +16,8 @@ from sklearn.neural_network import MLPClassifier
 
 __all__ = ["NeuralInterface"]
 
+logging.basicConfig(level=logging.INFO)
+
 
 class NeuralInterface:
     """
@@ -26,7 +28,8 @@ class NeuralInterface:
     TIME_LIMIT = 3600  # Seconds, one update per hour
     # Fine tuned parameters, to be changed accordingly to the specific instance of neural network
     # in the query release, then start the neural training
-    HIDDEN_LAYER_SIZE = (20, 30, 20)  # 3 layer of hidden nodes, with 20, 30, 20 nodes each
+    # 3 layer of hidden nodes, with 20, 30, 20 nodes each
+    HIDDEN_LAYER_SIZE = (20, 30, 20)
     MAX_ITER = 500  # epochs
 
     def __init__(self):
@@ -37,7 +40,7 @@ class NeuralInterface:
 
     @property
     def dataset(self):
-        return self.dataset_name
+        return self._dataset
 
     def train(self, dataset_name: str, datatypes: List[str], dataset: List[List[float]]) -> None:
         """
@@ -45,12 +48,14 @@ class NeuralInterface:
         :dataset_id: int, the id of thee training session to use for the predictions
         :return: None
         """
-        neural_data = pd.DataFrame(numpy.array(dataset), columns=numpy.array(datatypes))
+        neural_data = pd.DataFrame(numpy.array(
+            dataset), columns=numpy.array(datatypes))
         datatypes.remove("situation")
 
         data = neural_data.drop("situation", axis=1)
         situations = neural_data["situation"]
-        train_data, test_data, train_situations, test_situations = train_test_split(data, situations)
+        train_data, test_data, train_situations, test_situations = train_test_split(
+            data, situations)
 
         # Format, test and transform the data accordingly to the neural network
         self._scaler = StandardScaler()
@@ -59,7 +64,8 @@ class NeuralInterface:
         test_data = self._scaler.transform(test_data)
 
         if not self._neural_net:
-            self._neural_net = MLPClassifier(hidden_layer_sizes=self.HIDDEN_LAYER_SIZE, max_iter=self.MAX_ITER)
+            self._neural_net = MLPClassifier(
+                hidden_layer_sizes=self.HIDDEN_LAYER_SIZE, max_iter=self.MAX_ITER)
         self._neural_net.fit(train_data, train_situations)
 
         logging.info("training accuracy: {:3f}".

@@ -1,10 +1,14 @@
 from flask import Flask
 from flask_restplus import Api, Resource
-from webargs.flaskparser import use_args
+from webargs.flaskparser import use_args, parser, abort
 from webargs import fields
 
 from pymodm.errors import DoesNotExist
-from .models import DatasetMeta, DatasetEntry, to_ordered_list
+from .models import DatasetMeta, DatasetEntry, to_ordered_list, strip_neural_meta
+
+import datetime
+import logging
+
 
 __all__ = ["app"]
 
@@ -19,11 +23,15 @@ class Datasets(Resource):
         resp = [meta.as_dict() for meta in dataset_meta]
         return {"datasets": resp}, 200
 
-    @use_args({"name": fields.Str(required=True), "keys": fields.List(cls_or_instance=fields.Str, required=True)})
+    @use_args({"name": fields.Str(required=True), "keys": fields.List(cls_or_instance=fields.Str , required=True)})
     def post(self, args):
+        # Decorate the incoming data with information about the situation and the time
+        args["keys"].append("situation")
+        args["keys"].append("hour")
+        args["keys"].append("minute")
         DatasetMeta(args["name"], keys=args["keys"]).save()
         dataset_meta = DatasetMeta.objects.raw({"_id": args["name"]}).first()
-        return {args["name"]: dataset_meta.as_dict()}, 200
+        return dataset_meta.as_dict(), 200
 
 
 @api.route("/dataset/<string:name>")
@@ -36,15 +44,22 @@ class Dataset(Resource):
         except DoesNotExist:
             return {"error": "no such dataset"}, 404
 
-    @use_args({"entry": fields.Dict(keys=fields.Str, values=fields.Float, required=True)})
+    @use_args({"situation": fields.Integer(required=True), "entry": fields.Dict(keys=fields.Str, values=fields.Float, required=True)})
     def post(self, args, name):
         try:
             dataset_meta = DatasetMeta.objects.raw({"_id": name})
             target_meta = dataset_meta.first().as_dict()
-            if set(target_meta["keys"]) != set(args["entry"].keys()):
+
+            if strip_neural_meta(target_meta["keys"]) != set(args["entry"].keys()):
                 # The keys passed as input via the dataset API are different from the ones
                 # used in the dataset.
                 return {"error": "wrong keys for the specified dataset"}, 422
+            
+            # Decorate the incoming data with information about the situation and the time
+            now = datetime.datetime.now()
+            args["entry"]["situation"] = args["situation"]
+            args["entry"]["hour"] = now.hour
+            args["entry"]["minute"] = now.minute
             DatasetEntry(dataset=name, entry=to_ordered_list(target_meta["keys"], args["entry"])).save()
             return {"dataset": name, "entry": args["entry"]}, 200
         except DoesNotExist:
@@ -58,3 +73,9 @@ class Dataset(Resource):
             return deleted_meta, 200
         except DoesNotExist:
             return {"error": "no such dataset"}, 404
+
+
+@parser.error_handler
+def handle_request_parsing_error(err, req, schema, *, error_status_code, error_headers):
+    logging.error(err, error_headers)
+    abort(error_status_code, errors=err.messages)

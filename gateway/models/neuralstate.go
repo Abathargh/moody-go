@@ -14,7 +14,8 @@ const (
 )
 
 type DatasetEntryRequest struct {
-	Entry map[string]float64 `json:"entry" validate:"nonzero"`
+	Situation uint64             `json:"situation"`
+	Entry     map[string]float64 `json:"entry" validate:"nonzero"`
 }
 
 type NeuralPredictionRequest struct {

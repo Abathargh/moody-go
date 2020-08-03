@@ -15,8 +15,8 @@ const SERVICE = 0;
 const SITUATION = 1;
 
 const urls = [
-    "http://localhost:8080/situation/",
-    "http://localhost:8080/service/",
+    "http://localhost:7000/situation",
+    "http://localhost:7000/service",
     "http://localhost:7000/sensor_service",
 ]
 
@@ -57,7 +57,7 @@ export default class ServiceSituations extends Component {
     handleSituationRemoval(id) {
         const situationList = this.state.situationList;
 
-        fetch(urls[situationIndex] + id, { method: "DELETE" })
+        fetch(urls[situationIndex] + "/" + id, { method: "DELETE" })
             .then(resp => resp.json())
             .then(
                 result => {
@@ -78,7 +78,7 @@ export default class ServiceSituations extends Component {
         const serviceList = this.state.serviceList;
         const allServices = this.state.allServices;
 
-        fetch(urls[serviceIndex] + id, { method: "DELETE" })
+        fetch(urls[serviceIndex] + "/" + id, { method: "DELETE" })
             .then(resp => resp.json())
             .then(
                 result => {

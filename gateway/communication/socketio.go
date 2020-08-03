@@ -64,6 +64,9 @@ func (ss *SocketioServer) Close() error {
 
 // Marshals and forwards data referring a service event
 func (ss *SocketioServer) ForwardServiceData(evt ServiceDataEvent) {
+	if ss.webappSocket == nil {
+		return
+	}
 	jsonData, _ := json.Marshal(&evt)
 	ss.webappSocket.Emit(eventData, jsonData)
 }
@@ -71,6 +74,9 @@ func (ss *SocketioServer) ForwardServiceData(evt ServiceDataEvent) {
 // Gets a mapping of an actuator server that just connected to the gateway and forwards
 // it to the webapp
 func (ss *SocketioServer) ForwardActuatorData(evt ActuatorConnectedEvent) {
+	if ss.webappSocket == nil {
+		return
+	}
 	mappings, err := models.GetActuatorMapping(evt.IP)
 	if err != nil {
 		log.Println(err)

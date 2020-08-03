@@ -1,0 +1,260 @@
+.neuralMonitor {
+    padding: 2%;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 45% 45%;
+}
+
+.neuralBox {
+    text-align: center;
+    border-radius: 25px;
+    background: #ebeeff;
+    border: 1px solid #af7bc7;
+    width: 90%;
+    height: auto;
+    min-height: 50vh;
+    max-height: auto;
+    padding-bottom: 5%;
+    margin-bottom: 5%;      
+}
+
+.divMsg {
+    text-align: justify;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.createDatasetBox {
+    margin: auto;
+    margin-top: 8%;
+    margin-bottom: 5%;
+    width: 80%;
+}
+
+.createDatasetBox input {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #af7bc7;    
+}
+
+.createDatasetBox button {
+    width: 100%;
+    margin-top: 1%;
+    border-radius: 5px;
+    background: #f3f5ff;
+    border: 1.1px solid #af7bc7;
+}
+
+
+.createDatasetBox button:hover {
+    background: #ffffff;
+}
+
+
+
+
+/* state display */
+
+
+.stateTableBox {
+    border-bottom: 1px solid #af7bc7;    
+    overflow: hidden;
+    height: 40%;
+    padding-bottom: 5%;
+}
+
+
+.stateTable {
+    overflow: hidden;
+    display: block;
+    empty-cells: show;
+    height: 100%;
+    width: 100%;
+}
+
+.stateTable thead {
+    position: relative;
+    display: block;
+    width: 96%;
+    margin-left: 1%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(218, 206, 250));
+}
+
+.stateTable tbody {
+    display: block; 
+    position: relative;
+    width: 100%;
+    height: 70%; 
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.stateTable tr {
+    width: 100%;
+    display:flex;
+}
+
+.stateTable td, .stateTable th{
+    flex-basis: 100%;
+    flex-grow: 2;
+    display: block;
+    flex-basis: 20%;
+    flex-grow: 1;
+    padding-bottom: 5%;
+}
+
+.stateTable td, .stateTable tr, .stateTable th {
+    font-size: large;
+    padding: 2%;
+}
+
+
+
+/* Monitor Settings */
+
+.neuralSettings {
+    width: 100%;
+    height: 30%;
+    text-align: center;
+}
+
+.modeSetting {
+    width: 100%;
+}
+
+.datasetSetting {
+    margin: auto;
+    margin-top: 0.5%;
+    width: 80%;
+}
+
+.datasetSetting button {
+    width: 100%;
+    margin-top: 1%;
+    border-radius: 5px;
+    background: #f3f5ff;
+    border: 1.1px solid #af7bc7;
+}
+
+
+.datasetSetting button:hover {
+    background: #ffffff;
+}
+
+.datasetSelect {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #af7bc7;    
+}
+
+.neuralTableBox {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.neuralTable {
+    display: block;
+    empty-cells: show;
+    overflow: hidden;
+    height: 90%;
+}
+
+.neuralTable button {
+    border-radius: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background-color: #faf4ff;
+    border: 1px solid #7b84f7;
+}
+
+.neuralTable button:hover {
+    background-color: #dbddff;
+}
+
+.neuralTable thead {
+    position: relative;
+    display: block;
+    width: 96%;
+    margin-left: 1%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(218, 206, 250));
+}
+
+.neuralTable tbody {
+    display: block; 
+    position: relative;
+    width: 100%;
+    height: 70%; 
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.neuralTable tr {
+    width: 100%;
+    display:flex;
+}
+
+.neuralTable td, .neuralTable th{
+    flex-basis: 100%;
+    flex-grow: 2;
+    display: block;
+    flex-basis: 20%;
+    flex-grow: 1;
+    padding-bottom: 5%;
+}
+
+.neuralTable td, .neuralTable tr, .neuralTable th {
+    font-size: large;
+    padding: 2%;
+}
+
+.neuralTable tbody::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(255, 197, 197, 0.3);
+    box-shadow: inset 0 0 6px rgba(255, 197, 197, 0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+}
+  
+.neuralTable tbody::-webkit-scrollbar {
+    width: 12px;
+    background-color: #F5F5F5;
+}
+  
+.neuralTable tbody::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: rgb(235, 228, 255)
+}
+
+
+.situationMsg {
+    font-size: 0.9em;
+    margin-bottom: 1%;
+}
+
+.situationSetting {
+    margin: auto;
+    width: 80%;
+}
+
+.situationSetting button {
+    width: 100%;
+    margin-top: 1%;
+    border-radius: 5px;
+    background: #f3f5ff;
+    border: 1.1px solid #af7bc7;
+}
+
+
+.situationSetting button:hover {
+    background: #ffffff;
+}
+
+.situationSelect {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #af7bc7;    
+}

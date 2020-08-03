@@ -35,11 +35,22 @@ func logRequestResponseMiddleWare(h http.Handler) http.Handler {
 
 func HttpListenAndServer(port string) *http.Server {
 	router := mux.NewRouter()
+
+	// These are directly forwarded to the API GW
+	router.HandleFunc("/situation", addTrailing)
+	router.HandleFunc("/service", addTrailing)
+	router.HandleFunc("/dataset", forwardToApiGW)
+
+	router.HandleFunc("/situation/{[0-9]*}", forwardToApiGW)
+	router.HandleFunc("/service/{[0-9]*}", forwardToApiGW)
+	router.HandleFunc("/dataset/{[0-9]*}", forwardToApiGW)
+
+	// Internal Gateway endpoints
 	router.HandleFunc("/neural_state", neuralStateMux)
 	router.HandleFunc("/actuator_mode", actuatorModeMux)
 	router.HandleFunc("/actuators", actuatorMux)
 	router.HandleFunc("/sensor_service", serviceMux)
-	router.HandleFunc("/situation", situationMux)
+	router.HandleFunc("/current_situation", situationMux)
 	router.Handle("/socket.io/", communication.SioServer.Server)
 	router.Use(allowAllCorsMiddleware)
 	router.Use(logRequestResponseMiddleWare)
@@ -49,6 +60,8 @@ func HttpListenAndServer(port string) *http.Server {
 
 func neuralStateMux(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodGet:
+		getNeuralState(w, r)
 	case http.MethodPut:
 		setNeuralState(w, r)
 	case http.MethodOptions:

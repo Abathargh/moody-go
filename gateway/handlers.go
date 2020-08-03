@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"gateway/communication"
 	"gateway/models"
@@ -9,6 +10,54 @@ import (
 	"net/url"
 	"strconv"
 )
+
+// Add a trailing slash to solve a conflict with the API GW endpoints
+// TODO solve more elegantly
+func addTrailing(w http.ResponseWriter, r *http.Request) {
+	r.URL.Path = fmt.Sprintf("%s/", r.URL.Path)
+	forwardToApiGW(w, r)
+}
+
+// Forwards incoming requests that need to query an external service to the API GW
+func forwardToApiGW(w http.ResponseWriter, r *http.Request) {
+	url := communication.ApiGatewayAddress
+	url.Path = r.URL.Path
+	w.Header().Set("Content-Type", "application/json")
+
+	newReq, err := http.NewRequest(r.Method, url.String(), r.Body)
+	if err != nil {
+		log.Println(err)
+		models.RespondWithError(w, http.StatusInternalServerError, "server error")
+		return
+	}
+	newReq.Header.Set("Host", r.Host)
+	newReq.Header.Set("X-Forwarded-For", r.RemoteAddr)
+	for header, headerValues := range r.Header {
+		for _, headerValue := range headerValues {
+			newReq.Header.Add(header, headerValue)
+		}
+	}
+	client := &http.Client{}
+	resp, err := client.Do(newReq)
+	if err != nil {
+		log.Println(err)
+		models.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+	w.WriteHeader(resp.StatusCode)
+	w.Write(buf.Bytes())
+}
+
+// [GET] /neural_state
+// returns a view of the neural state of the app, containing information about
+// the neural engine state and the current dataset in use
+func getNeuralState(w http.ResponseWriter, r *http.Request) {
+	state := communication.NeuralState
+	w.WriteHeader(http.StatusOK)
+	models.MustEncode(w, state)
+}
 
 // [PUT] /neural_state {mode: DataMode, dataset: str}
 // sets the neural engine to the passed mode, using the passed dataset
@@ -19,22 +68,33 @@ func setNeuralState(w http.ResponseWriter, r *http.Request) {
 		models.RespondWithError(w, http.StatusUnprocessableEntity, "bad syntax")
 		return
 	}
-	_, err := newState.DatasetKeysIfExists()
-	if err != nil {
-		if err == models.NotFound {
-			models.RespondWithError(w, http.StatusNotFound, "not found")
-		} else {
-			models.RespondWithError(w, http.StatusInternalServerError, "server error")
-		}
+
+	if newState.Mode == models.Stopped {
 		communication.NeuralState = models.NeuralState{
 			Mode:    models.Stopped,
 			Dataset: "",
 		}
-		return
+	} else {
+		// Not stopped, proceed witch dataset check
+		_, err := newState.DatasetKeysIfExists()
+		if err != nil {
+			if err == models.NotFound {
+				models.RespondWithError(w, http.StatusNotFound, "not found")
+			} else {
+				models.RespondWithError(w, http.StatusInternalServerError, "server error")
+			}
+			communication.NeuralState = models.NeuralState{
+				Mode:    models.Stopped,
+				Dataset: "",
+			}
+			return
+		}
 	}
+
 	communication.NeuralState = newState
 	log.Printf("New neural state: %+v\n", communication.NeuralState)
 	w.WriteHeader(http.StatusOK)
+	models.MustEncode(w, newState)
 }
 
 // [GET] /actuator_mode
@@ -186,7 +246,9 @@ func activateService(w http.ResponseWriter, r *http.Request) {
 		models.RespondWithError(w, http.StatusUnprocessableEntity, "bad syntax")
 		return
 	}
-	resp, err := http.Get(fmt.Sprintf("%sservice/%d", communication.ApiGatewayAddress, servReq.Service))
+	url := communication.ApiGatewayAddress
+	url.Path = fmt.Sprintf("/service/%d", servReq.Service)
+	resp, err := http.Get(url.String())
 	if err != nil || resp.StatusCode == http.StatusInternalServerError {
 		models.RespondWithError(w, http.StatusInternalServerError, "server error")
 		return
@@ -246,7 +308,9 @@ func setSituation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := http.Get(fmt.Sprintf("%ssituation/%d", communication.ApiGatewayAddress, situationRequest.SituationId))
+	url := communication.ApiGatewayAddress
+	url.Path = fmt.Sprintf("/situation/%d", situationRequest.SituationId)
+	resp, err := http.Get(url.String())
 	if err != nil || resp.StatusCode == http.StatusInternalServerError {
 		models.RespondWithError(w, http.StatusInternalServerError, "server error")
 		return
@@ -256,17 +320,33 @@ func setSituation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	newSituation := &models.Situation{}
-	if err := models.ReadAndDecode(r.Body, newSituation); err != nil {
+	if err := models.ReadAndDecode(resp.Body, newSituation); err != nil {
 		models.RespondWithError(w, http.StatusBadRequest, "server error")
 		return
 	}
 	communication.Situation = newSituation
+
+	// Respond with new situation
+	situationResp := &models.SituationResponse{IsSet: true, Situation: communication.Situation}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	models.MustEncode(w, situationResp)
 }
 
 // [GET] /situation
 // gets the value of the current situation
 func getSituation(w http.ResponseWriter, r *http.Request) {
+	var isSet bool
+	if communication.Situation == nil {
+		isSet = false
+	} else {
+		isSet = true
+	}
+	situationResp := &models.SituationResponse{
+		IsSet:     isSet,
+		Situation: communication.Situation,
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	models.MustEncode(w, communication.Situation)
+	models.MustEncode(w, situationResp)
 }

@@ -6,7 +6,7 @@ from webargs import fields
 
 from typing import List
 from pymodm.errors import DoesNotExist
-from .models import DatasetMeta, DatasetEntry
+from .models import DatasetMeta, DatasetEntry, strip_neural_meta
 from .neural import NeuralInterface
 
 __all__ = ["app"]
@@ -20,7 +20,8 @@ classifier = NeuralInterface()
 
 def get_dataset(dataset_name: str) -> List[List[float]]:
     logging.info("Retrieving dataset {} from the db".format(dataset_name))
-    entries = DatasetEntry.objects.raw({"dataset", dataset_name}).only("entry")
+    entries = DatasetEntry.objects.raw({"dataset", dataset_name})
+    logging.info(entries)
     return [entry for entry in entries]
 
 
@@ -32,9 +33,9 @@ class Prediction(Resource):
     })
     def post(self, args):
         try:
-            dataset_meta = DatasetMeta.objects.raw({"_id": name})
+            dataset_meta = DatasetMeta.objects.raw({"_id": args["dataset"]})
             target_meta = dataset_meta.first().as_dict()
-            if set(target_meta["keys"]) != set(args["query"].keys()):
+            if strip_neural_meta(target_meta["keys"]) != set(args["query"].keys()):
                 return {"error": "wrong keys for the specified dataset"}, 422
             if args["dataset"] != classifier.dataset:
                 data = get_dataset(args["dataset"])

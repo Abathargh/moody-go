@@ -19,7 +19,7 @@ const socketioEvent = "actuator";
 
 const urls = [
     "http://localhost:7000/actuators",
-    "http://localhost:8080/situation/",
+    "http://localhost:7000/situation",
     "http://localhost:7000/actuator_mode",
 ];
 

@@ -83,16 +83,6 @@ func (table *DataTable) Keys() []string {
 	return keys
 }
 
-func (table *DataTable) CopyUnderlyingMap() map[string]float64 {
-	table.mutex.Lock()
-	defer table.mutex.Unlock()
-	copyMap := make(map[string]float64)
-	for key, value := range table.data {
-		copyMap[key] = value
-	}
-	return copyMap
-}
-
 func (table *DataTable) String() string {
 	var s string
 	s = "{"

@@ -20,7 +20,7 @@ class SituationListBox extends Component {
 
 class NewActionBox extends Component {
     render() {
-        return <div className="mappingOption"><input className=" inputBox" type="text" placeholder="Action" onChange={this.props.handleChange} /></div>;
+        return <div className="mappingOption"><input className="inputBox" type="text" placeholder="Action" onChange={this.props.handleChange} /></div>;
     }
 }
 

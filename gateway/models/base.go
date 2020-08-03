@@ -3,11 +3,12 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/validator.v2"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"gopkg.in/validator.v2"
 )
 
 var (
@@ -19,7 +20,7 @@ type ErrorResponse struct {
 }
 
 // Encode struct to json, if something goes wrong the application exits.
-// Used internally to crate the body for the http responses.
+// Used internally to create the body for the http responses.
 func MustEncode(w http.ResponseWriter, response interface{}) {
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Fatal(err)
