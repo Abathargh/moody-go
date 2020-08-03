@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -41,6 +42,7 @@ type ConnectedServerActuatorList struct {
 // Helper function that returns the mappings of a specific actuator server
 func GetActuatorMapping(ip string) (*Mappings, error) {
 	mappingEndpoint := fmt.Sprintf("http://%s/mapping", ip)
+	log.Println("Act IP: ", mappingEndpoint)
 	resp, err := http.Get(mappingEndpoint)
 	if err != nil {
 		return nil, err

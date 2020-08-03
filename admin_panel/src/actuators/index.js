@@ -14,14 +14,17 @@ const activatedActuatorServerIndex = 0;
 const situationIndex = 1;
 const activateModeIndex = 2;
 
-const socketioEndpoint = "http://localhost:7000";
+let config = require("../conf.json");
+
+const socketioEndpoint = config.gateway + "/";
 const socketioEvent = "actuator";
 
+
 const urls = [
-    "http://localhost:7000/actuators",
-    "http://localhost:7000/situation",
-    "http://localhost:7000/actuator_mode",
-];
+    "/actuators",
+    "/situation",
+    "/actuator_mode",
+].map(url => config.gateway + url);
 
 
 export default class Actuators extends Component {

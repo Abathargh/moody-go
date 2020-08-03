@@ -88,16 +88,14 @@ services:
       - moody-broker
       - moody-api-gw
 
-  #moody-adminpanel:
-  #  build: ./adminpanel
-  #  networks:
-  #    - nginx-front:
-  #  ports:
-  #    - 6666:80
-  #  depends_on:
-  #    - moody-gateway
-  #    - moody-api-gw
-
+  moody-adminpanel:
+    build: ./admin_panel
+    networks:
+      - nginx-front
+    ports:
+      - 3000:80
+    depends_on:
+      - moody-gateway
 
 
 networks:

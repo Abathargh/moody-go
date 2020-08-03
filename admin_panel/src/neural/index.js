@@ -19,13 +19,15 @@ const situationIndex = 2;
 const getSituationIndex = 3;
 const sensorServiceIndex = 4;
 
+let config = require("../conf.json");
+
 const urls = [
-    "http://localhost:7000/dataset",
-    "http://localhost:7000/neural_state",
-    "http://localhost:7000/current_situation",
-    "http://localhost:7000/situation",
-    "http://localhost:7000/sensor_service",
-];
+    "/dataset",
+    "/neural_state",
+    "/current_situation",
+    "/situation",
+    "/sensor_service",
+].map(url => config.gateway + url);
 
 export default class Neural extends Component {
     constructor(props) {

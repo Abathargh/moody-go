@@ -6,6 +6,11 @@ version (eventlet/flask-socketio with threading/multiprocessing).
 The actual implementation contains many services running on a series of docker containers, with the original 
 python3/moody neural service.
 
+### Update (August 2020)
+
+The infrastructure is completely functional, every <i>basic</i> feature has been implemented.
+
+
 Run via docker-compose:
 
 ```bash
@@ -14,3 +19,5 @@ cd moody-go
 
 docker-compose up --build
 ```
+
+and the open the admin panel reachable from http://localhost:3000.

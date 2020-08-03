@@ -14,11 +14,13 @@ const activatedServiceIndex = 2;
 const SERVICE = 0;
 const SITUATION = 1;
 
+let config = require("../conf.json");
+
 const urls = [
-    "http://localhost:7000/situation",
-    "http://localhost:7000/service",
-    "http://localhost:7000/sensor_service",
-]
+    "/situation",
+    "/service",
+    "/sensor_service",
+].map(url => config.gateway + url);
 
 export default class ServiceSituations extends Component {
     situations;

@@ -6,10 +6,14 @@ import { Empty, Error, Loading } from "./Errors"
 const socketioIndex = 0;
 const activatedServiceIndex = 1;
 
+const socketioEvent = "data";
+
+let config = require("../conf.json");
+
 const urls = [
-    "http://localhost:7000",
-    "http://localhost:7000/sensor_service",
-];
+    "/",
+    "/sensor_service",
+].map(url => config.gateway + url);
 
 class Service {
     constructor(obj) {
@@ -41,7 +45,7 @@ export default class Monitor extends Component {
             )
 
         const socket = socketIOClient(urls[socketioIndex]);
-        socket.on("data", data => {
+        socket.on(socketioEvent, data => {
             let dataService = new Service(JSON.parse(atob(data)));
             let services = this.state.serviceList;
             let index = services.findIndex(service => service.service === dataService.service);

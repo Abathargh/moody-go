@@ -59,6 +59,25 @@ func getNeuralState(w http.ResponseWriter, r *http.Request) {
 	models.MustEncode(w, state)
 }
 
+func DatasetKeysIfExists(state models.NeuralState) ([]string, error) {
+	url := communication.ApiGatewayAddress
+	url.Path = fmt.Sprintf("/dataset/%s", state.Dataset)
+	resp, err := http.Get(url.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, models.NotFound
+	}
+
+	var meta models.DatasetMeta
+	if err := models.ReadAndDecode(resp.Body, &meta); err != nil {
+		return nil, err
+	}
+	return meta.Keys, nil
+}
+
 // [PUT] /neural_state {mode: DataMode, dataset: str}
 // sets the neural engine to the passed mode, using the passed dataset
 func setNeuralState(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +95,7 @@ func setNeuralState(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// Not stopped, proceed witch dataset check
-		_, err := newState.DatasetKeysIfExists()
+		_, err := DatasetKeysIfExists(newState)
 		if err != nil {
 			if err == models.NotFound {
 				models.RespondWithError(w, http.StatusNotFound, "not found")

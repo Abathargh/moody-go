@@ -1,10 +1,5 @@
 package models
 
-import (
-	"fmt"
-	"net/http"
-)
-
 type DataMode uint8
 
 const (
@@ -28,36 +23,11 @@ type NeuralPredictionResponse struct {
 }
 
 type NeuralState struct {
-	Mode        DataMode `json:"mode" validate:"min=0,max=2"`
-	Dataset     string   `json:"dataset"` // not nonzero because it may be empty when stopped, maybe check
-	dataSetKeys []string `validate:"-"`   // private field for internal use only
+	Mode    DataMode `json:"mode" validate:"min=0,max=2"`
+	Dataset string   `json:"dataset"` // not nonzero because it may be empty when stopped, maybe check
 }
 
 type DatasetMeta struct {
 	Name string   `json:"name" validate:"nonzero"`
 	Keys []string `json:"keys" validate:"nonzero"`
-}
-
-func (s *NeuralState) DatasetKeysIfExists() ([]string, error) {
-	if s.dataSetKeys != nil {
-		return s.dataSetKeys, nil
-	}
-
-	// TODO URL in conf
-	resp, err := http.Get(fmt.Sprintf("http://moody-api-gw/dataset/%s", s.Dataset))
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, NotFound
-	}
-
-	var meta DatasetMeta
-	if err := ReadAndDecode(resp.Body, &meta); err != nil {
-		return nil, err
-	}
-
-	s.dataSetKeys = meta.Keys
-	return meta.Keys, nil
 }
