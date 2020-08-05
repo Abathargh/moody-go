@@ -1,15 +1,19 @@
-FROM golang
+FROM golang:alpine AS builder
 
 ENV GO111MODULE=on \
-    CGO_ENABLED=1 \
+    CGO_ENABLED=0 \
     GOOS=linux
 
 WORKDIR /app
-
 COPY . .
 
 RUN go mod download
 RUN go build -o moody-service .
 
+FROM scratch
+
+COPY --from=builder /app/moody-service /app/moody-service
+COPY conf.json .
+
 EXPOSE 80
-CMD ["/app/moody-service"]
+ENTRYPOINT ["/app/moody-service"]
