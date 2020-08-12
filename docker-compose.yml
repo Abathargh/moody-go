@@ -79,6 +79,8 @@ services:
 
   moody-gateway:
     build: ./gateway
+    volumes: 
+      - ./gateway/conf.json:/conf.json
     networks:
       - mqtt
       - nginx-front

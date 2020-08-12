@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  moody-broker:
+    image: eclipse-mosquitto
+    networks:
+      - mqtt
+    ports:
+      - 1883:1883
+    command:
+      ["mosquitto", "-v"]
+
+  moody-gateway:
+    image: abathargh/moody-gateway:latest
+    volumes:
+      - ./conf/conf.json:/conf.json
+    networks:
+      - mqtt
+      - gw-front
+    ports:
+      - 7000:80
+    depends_on:
+      - moody-broker
+
+  moody-adminpanel:
+    image: abathargh/moody-adminpanel:latest
+    networks:
+      - gw-front
+    ports:
+      - 3000:80
+    depends_on:
+      - moody-gateway
+
+networks:
+  mqtt:
+  gw-front:
