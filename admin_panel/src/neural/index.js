@@ -19,7 +19,9 @@ const situationIndex = 2;
 const getSituationIndex = 3;
 const sensorServiceIndex = 4;
 
-let config = require("../conf.json");
+let url = new URL(window.location.origin);
+url.port = process.env.REACT_APP_API_PORT;
+let gateway = url.origin;
 
 const urls = [
     "/dataset",
@@ -27,7 +29,7 @@ const urls = [
     "/current_situation",
     "/situation",
     "/sensor_service",
-].map(url => config.gateway + url);
+].map(url => gateway + url);
 
 export default class Neural extends Component {
     constructor(props) {

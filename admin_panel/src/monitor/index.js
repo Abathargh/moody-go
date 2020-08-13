@@ -8,12 +8,14 @@ const activatedServiceIndex = 1;
 
 const socketioEvent = "data";
 
-let config = require("../conf.json");
+let url = new URL(window.location.origin);
+url.port = process.env.REACT_APP_API_PORT;
+let gateway = url.origin;
 
 const urls = [
     "/",
     "/sensor_service",
-].map(url => config.gateway + url);
+].map(url => gateway + url);
 
 class Service {
     constructor(obj) {

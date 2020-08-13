@@ -10,9 +10,9 @@ import (
 
 func allowAllCorsMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		applyHeaders(communication.WebAppAddress, w)
+		applyHeaders(w)
 		if r.Method == http.MethodOptions {
-			respOptions(communication.WebAppAddress, w)
+			respOptions(w)
 		}
 		h.ServeHTTP(w, r)
 	})
@@ -124,8 +124,8 @@ func situationMux(w http.ResponseWriter, r *http.Request) {
 
 // CORS Middleware Headers
 
-func applyHeaders(acceptFrom string, w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", acceptFrom)
+func applyHeaders(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT")
@@ -133,8 +133,8 @@ func applyHeaders(acceptFrom string, w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Expose-Headers", "Content-Length,Content-Range")
 }
 
-func respOptions(acceptFrom string, w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", acceptFrom)
+func respOptions(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT")
 	w.Header().Set("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range")

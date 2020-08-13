@@ -14,9 +14,11 @@ const activatedActuatorServerIndex = 0;
 const situationIndex = 1;
 const activateModeIndex = 2;
 
-let config = require("../conf.json");
+let url = new URL(window.location.origin);
+url.port = process.env.REACT_APP_API_PORT;
+let gateway = url.origin;
 
-const socketioEndpoint = config.gateway + "/";
+const socketioEndpoint = gateway + "/";
 const socketioEvent = "actuator";
 
 
@@ -24,7 +26,7 @@ const urls = [
     "/actuators",
     "/situation",
     "/actuator_mode",
-].map(url => config.gateway + url);
+].map(url => gateway + url);
 
 
 export default class Actuators extends Component {

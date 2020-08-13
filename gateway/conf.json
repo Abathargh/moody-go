@@ -1,5 +1,4 @@
 {
-    "webAppAddr": "http://localhost:3000",
     "apiGateway": "http://moody-api-gw/",
     "serverPort": ":80",
     "mqtt": {
