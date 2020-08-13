@@ -10,11 +10,14 @@ import (
 
 func allowAllCorsMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		applyHeaders(w)
-		if r.Method == http.MethodOptions {
-			respOptions(w)
+		origin := r.Header.Get("origin")
+		if origin != "" {
+			applyHeaders(origin, &w)
+			if r.Method == http.MethodOptions {
+				respOptions(origin, &w)
+			}
+			h.ServeHTTP(w, r)
 		}
-		h.ServeHTTP(w, r)
 	})
 }
 
@@ -124,24 +127,24 @@ func situationMux(w http.ResponseWriter, r *http.Request) {
 
 // CORS Middleware Headers
 
-func applyHeaders(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT")
-	w.Header().Set("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range")
-	w.Header().Set("Access-Control-Expose-Headers", "Content-Length,Content-Range")
+func applyHeaders(origin string, w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", origin)
+	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
+	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT")
+	(*w).Header().Set("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range")
+	(*w).Header().Set("Access-Control-Expose-Headers", "Content-Length,Content-Range")
 }
 
-func respOptions(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT")
-	w.Header().Set("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range")
-	w.Header().Set("Access-Control-Max-Age", "1728000")
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Header().Set("Content-Length", "0")
-	w.WriteHeader(http.StatusNoContent)
+func respOptions(origin string, w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", origin)
+	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
+	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT")
+	(*w).Header().Set("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range")
+	(*w).Header().Set("Access-Control-Max-Age", "1728000")
+	(*w).Header().Set("Content-Type", "text/plain; charset=utf-8")
+	(*w).Header().Set("Content-Length", "0")
+	(*w).WriteHeader(http.StatusNoContent)
 }
 
 // Request/Response logger
@@ -162,5 +165,4 @@ func (lrw *loggingResponseWriter) WriteHeader(code int) {
 	lrw.statusCode = code
 	lrw.method = lrw.request.Method
 	lrw.url = lrw.request.URL.Path
-	lrw.ResponseWriter.WriteHeader(code)
 }
