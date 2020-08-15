@@ -46,6 +46,11 @@ func (ss *SocketioServer) Serve() error {
 		ss.webappSocket = s
 		return nil
 	})
+
+	ss.Server.OnError("/", func(s socketio.Conn, err error) {
+		log.Println(err)
+	})
+
 	if err := ss.Server.Serve(); err != nil {
 		log.Println(err)
 		return err
@@ -67,7 +72,12 @@ func (ss *SocketioServer) ForwardServiceData(evt ServiceDataEvent) {
 	if ss.webappSocket == nil {
 		return
 	}
-	jsonData, _ := json.Marshal(&evt)
+
+	jsonData, err := json.Marshal(&evt)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	ss.webappSocket.Emit(eventData, jsonData)
 }
 
@@ -88,6 +98,10 @@ func (ss *SocketioServer) ForwardActuatorData(evt ActuatorConnectedEvent) {
 		Mappings: mappings.DataTable,
 	}
 
-	jsonData, _ := json.Marshal(&actuator)
+	jsonData, err := json.Marshal(&actuator)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	ss.webappSocket.Emit(eventActuator, jsonData)
 }

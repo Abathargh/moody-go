@@ -1,9 +1,8 @@
-FROM golang:alpine AS builder
+FROM arm64v8/golang:1.14-alpine AS builder
 
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
-    GOARCH=arm \
-    GOARM=7 \
+    GOARCH=arm64 \
     GOOS=linux
 
 WORKDIR /app

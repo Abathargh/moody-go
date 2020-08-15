@@ -132,7 +132,7 @@ func applyHeaders(origin string, w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
 	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT")
-	(*w).Header().Set("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range")
+	(*w).Header().Set("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Access-Control-Allow-Headers,Accept, Authorization, Content-Type, Content-Length, X-CSRF-Token, Token, session, Origin, Host, Connection, Accept-Encoding, Accept-Language, X-Requested-With")
 	(*w).Header().Set("Access-Control-Expose-Headers", "Content-Length,Content-Range")
 }
 
@@ -140,7 +140,7 @@ func respOptions(origin string, w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", origin)
 	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
 	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT")
-	(*w).Header().Set("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range")
+	(*w).Header().Set("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Access-Control-Allow-Headers,Accept, Authorization, Content-Type, Content-Length, X-CSRF-Token, Token, session, Origin, Host, Connection, Accept-Encoding, Accept-Language, X-Requested-With")
 	(*w).Header().Set("Access-Control-Max-Age", "1728000")
 	(*w).Header().Set("Content-Type", "text/plain; charset=utf-8")
 	(*w).Header().Set("Content-Length", "0")
