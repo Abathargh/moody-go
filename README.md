@@ -8,7 +8,7 @@ python3/moody neural service.
 
 ### Update (August 2020)
 
-The infrastructure is completely functional, every <i>basic</i> feature has been implemented.
+The infrastructure is completely functional, every _basic_ feature has been implemented.
 
 
 Run via docker-compose:
@@ -17,7 +17,9 @@ Run via docker-compose:
 git clone https://github.com/Abathargh/moody-go
 cd moody-go
 
-docker-compose up --build
+docker-compose up --build -d
 ```
 
 and the open the admin panel reachable from http://localhost:3000.
+
+Pre-built images for each service are available at https://hub.docker.com/u/abathargh.

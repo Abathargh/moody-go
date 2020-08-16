@@ -12,12 +12,13 @@ func allowAllCorsMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("origin")
 		if origin != "" {
-			applyHeaders(origin, &w)
-			if r.Method == http.MethodOptions {
-				respOptions(origin, &w)
-			}
-			h.ServeHTTP(w, r)
+			origin = "*"
 		}
+		applyHeaders(origin, &w)
+		if r.Method == http.MethodOptions {
+			respOptions(origin, &w)
+		}
+		h.ServeHTTP(w, r)
 	})
 }
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"gateway/models"
 	"log"
+	"time"
 
 	socketio "github.com/googollee/go-socket.io"
 )
@@ -87,6 +88,11 @@ func (ss *SocketioServer) ForwardActuatorData(evt ActuatorConnectedEvent) {
 	if ss.webappSocket == nil {
 		return
 	}
+	// If we don't introduce this delay here, we could be trying to request the mappings
+	// before the actuator server is on: the request would fail, and the socketio message
+	// would not be sent, but the actuator would eventually turn on: the mappings wouldn't
+	// be received without refreshing the webapp.
+	time.Sleep(1 * time.Second)
 	mappings, err := models.GetActuatorMapping(evt.IP)
 	if err != nil {
 		log.Println(err)
