@@ -3,13 +3,59 @@
 The gateway receives data from sensors and fowards it to the services and to actuators, depending on the settings and its internal state.
 
 ## Contents
+- [Requirements](#requirements)
+- [Installation](#installation)
+    - [As a standalone application](#as-a-standalone-application)
+    - [As part of the moody front architecture](#as-part-of-the-moody-front-architecture)
 - [Functionalities](#functionalities)
     - [Services](#services)
     - [Actuator Mode](#actuator-mode)
     - [Neural API](#neural-api)
-- [Running the app](#running-the-app)
-    - [As a standalone application](#as-a-standalone-application)
-    - [As part of the moody front architecture](#as-part-of-the-moody-front-architecture)
+
+## Requirements
+
+If you want to run the gateway directly on your machine, you will need to install go (>= 1.13); the app was developed with reference to the golang-go version.
+
+You can also run it through docker if you don't want to install go.
+
+## Installation
+
+### As a standalone application
+You can run the gateway as a standalone application, but you will need to pass the address of the broker you're using and the one where the services API is exposed. 
+
+```bash
+# Directly build the binaries, you will need to install go on your machine
+cd gateway
+go mod download
+go build -o moody-gateway .
+
+# ...or use the prebuilt docker image
+docker run --name moody-gateway -v ./conf.json:/conf.json -p 7000:80 abathargh/moody-gateway:latest
+```
+
+### As part of the moody front architecture
+
+You can use the moody-backend.yml compose configuration file to setup the backend on a remote machine and pass its address to the gateway. 
+
+Another way to deploy the gateway is to just run the moody-gw.yml compose file, that will setup the whole front side of the moody application, consisting of the broker, the gateway and the admin panel.
+
+```bash
+# From the root directory of the project
+# On a remote machine
+docker-compose -f moody-backend.yml --build -d
+
+# On a local machine
+docker-compose -f moody-gw.yml up --build -d
+```
+
+The pre-built images shared on docker hub and used in the compose files and in the examples are compatible with the following architectures:
+
+- amd64
+- arm32v7
+- aarch64 (arm64 or arm64v8)
+
+**N.B.** there's currently a bug in the googollee/go-socket.io library specifically on arm32v7 architectures that prevents some functionalities from properly working. Since one of the main target devices to run the gateway is the Raspberry Pi, I suggest to use the experimental 64-bit Raspberry Pi OS, where the application was tested and is currently being used and worked on.
+
 
 ## Functionalities
 
@@ -38,45 +84,3 @@ When creating, and then using, a dataset, the active services decide which keys 
 When collecting, it's important to set the situation that is tied to the data currently being collected. This is key not only to correctly populate the datasets, but also to make the collecting process begin, since the application will ignore data not bound by a situation.
 
 When predicting, a snapshot of the data obtained through the active services is obtained and forwarded to the neural service; the result is then broadcasted to the actuators.
-
-
-## Running the app
-
-### As a standalone application
-You can run the gateway as a standalone application, but you will need to pass the address of the broker you're using and the one where the services API is exposed. 
-
-```bash
-# Directly build the binaries, you will need to install go on your machine
-cd gateway
-go mod download
-go build -o moody-gateway .
-
-# ...or use the prebuilt docker image
-docker run --name moody-gateway -v ./conf.json:/conf.json -p 7000:80 abathargh/moody-gateway:latest
-```
-
-### As part of the moody front architecture
-
-You can use the moody-backend.yml compose configuration file to setup the backend on a remote machine and pass its address to the gateway. 
-
-Another way to deploy the gateway is to just run the moody-gw.yml compose file, that will setup the whole front side of the moody application, consisting of the broker, the gateway and the admin panel.
-
-```bash
-# From the root directory of the project
-# On a remote machine
-docker-compose -f moody-backend --build -d
-
-# On a local machine
-docker-compose -f moody-gw.yml up --build -d
-```
-
-The pre-built images shared on docker hub and used in the compose files and in the examples are compatible with the following architectures:
-
-- amd64
-- arm32v7
-- aarch64 (arm64 or arm64v8)
-
-**N.B.** there's currently a bug in the googollee/go-socket.io library specifically on arm32v7 architectures that prevents some functionalities from properly working. Since one of the main target devices to run the gateway is the Raspberry Pi, I suggest to use the experimental 64-bit Raspberry Pi OS, where the application was tested and is currently being used and worked on.
-
-
-
