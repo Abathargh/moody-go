@@ -1,6 +1,6 @@
 # *gateway*
 
-The gateway receives data from sensors and fowards it to the services and to actuators, depending on the settings and its internal state.
+The gateway receives data from sensors and forwards it to the services and to actuators, depending on the settings and its internal state.
 
 ## Contents
 - [Requirements](#requirements)
@@ -21,7 +21,7 @@ You can also run it through docker if you don't want to install go.
 ## Installation
 
 ### As a standalone application
-You can run the gateway as a standalone application, but you will need to pass the address of the broker you're using and the one where the services API is exposed. 
+You can run the gateway as a standalone application, but you will need to pass the address of the broker you're using, and the one exposing the services API. 
 
 ```bash
 # Directly build the binaries, you will need to install go on your machine
@@ -30,14 +30,14 @@ go mod download
 go build -o moody-gateway .
 
 # ...or use the prebuilt docker image
-docker run --name moody-gateway -v ./conf.json:/conf.json -p 7000:80 abathargh/moody-gateway:latest
+docker run --name moody-gateway -v ./conf.json:/conf.json -p 7000:80 abathargh/moody-go-gateway:latest
 ```
 
 ### As part of the moody front architecture
 
-You can use the moody-backend.yml compose configuration file to setup the backend on a remote machine and pass its address to the gateway. 
+You can use the moody-backend.yml compose configuration file to set up the backend on a remote machine and pass its address to the gateway. 
 
-Another way to deploy the gateway is to just run the moody-gw.yml compose file, that will setup the whole front side of the moody application, consisting of the broker, the gateway and the admin panel.
+Another way to deploy the gateway is to just run compose using moody-gw.yml, that will set up the whole front side of the moody application, consisting of the broker, the gateway and the admin panel.
 
 ```bash
 # From the root directory of the project
@@ -59,7 +59,7 @@ The pre-built images shared on docker hub and used in the compose files and in t
 
 ## Functionalities
 
-The applications functions as a gateway for the requests that have to be forwarded to the upper layer of the architecture (dataset, neural services, etc.) and as a aggregator of data coming from the sensors. 
+The application functions as a gateway for the requests that have to be forwarded to the upper layer of the architecture (dataset, neural services, etc.) and as a aggregator of data coming from the sensors. 
 
 It's used as both a middle node for the underlying WSAN and as an entry node to forward requests to the services by the admin panel app.
 

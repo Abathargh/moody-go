@@ -32,7 +32,7 @@ services:
       - moody-service
 
   moody-neural:
-    image: abathargh/moody-neural
+    image: abathargh/moody-go-neural
     networks:
       - nginx-back
       - mongo
@@ -40,7 +40,7 @@ services:
       - moody-mongo
 
   moody-dataset:
-    image: abathargh/moody-dataset
+    image: abathargh/moody-go-dataset
     networks:
       - nginx-back
       - mongo
@@ -48,7 +48,7 @@ services:
       - moody-mongo
 
   moody-service:
-    image: abathargh/moody-service
+    image: abathargh/moody-go-service
     networks:
       - nginx-back
       - postgres
@@ -56,7 +56,7 @@ services:
       - moody-postgres
 
   moody-situation:
-    image: abathargh/moody-situation
+    image: abathargh/moody-go-situation
     networks:
       - nginx-back
       - postgres

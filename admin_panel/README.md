@@ -37,7 +37,7 @@ serve -p 80 -s ./build
 Or you can just use a pre-built docker image:
 
 ```bash
-docker run --name moody-adminpanel -p 3000:80 abathargh/moody-adminpanel:latest
+docker run --name moody-adminpanel -p 3000:80 abathargh/moody-go-adminpanel:latest
 ```
 
 Docker images for this application are available for the following architectures:

@@ -11,9 +11,9 @@ services:
       ["mosquitto", "-v"]
 
   moody-gateway:
-    image: abathargh/moody-gateway:latest
+    image: abathargh/moody-go-gateway:latest
     volumes:
-      - ./conf/conf.json:/conf.json
+      - ./gateway/conf.json:/conf.json
     networks:
       - mqtt
       - gw-front
@@ -23,7 +23,7 @@ services:
       - moody-broker
 
   moody-adminpanel:
-    image: abathargh/moody-adminpanel:latest
+    image: abathargh/moody-go-adminpanel:latest
     networks:
       - gw-front
     ports:
