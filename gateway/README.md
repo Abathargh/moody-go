@@ -14,7 +14,7 @@ The gateway receives data from sensors and forwards it to the services and to ac
 
 ## Requirements
 
-If you want to run the gateway directly on your machine, you will need to install go (>= 1.13); the app was developed with reference to the golang-go version.
+If you want to run the gateway directly on your machine, you will need to install go (>= 1.13) and make (optional); the app was developed with reference to the golang-go version.
 
 You can also run it through docker if you don't want to install go.
 
@@ -24,13 +24,22 @@ You can also run it through docker if you don't want to install go.
 You can run the gateway as a standalone application, but you will need to pass the address of the broker you're using, and the one exposing the services API. 
 
 ```bash
-# Directly build the binaries, you will need to install go on your machine
+# directly build the binaries, you will need to install go on your machine
+
+# using make
+make build
+make start
+
+# close with
+make stop
+
+# doing everything manually
 cd gateway
 go mod download
 go build -o moody-gateway .
 
-# ...or use the prebuilt docker image
-docker run --name moody-gateway -v ./conf.json:/conf.json -p 7000:80 abathargh/moody-go-gateway:latest
+# or use the prebuilt docker image
+docker run --name moody-gateway -v ./conf.json:/conf.json -p 7000:7000 abathargh/moody-go-gateway:latest
 ```
 
 ### As part of the moody front architecture

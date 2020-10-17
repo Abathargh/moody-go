@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"gateway/communication"
+	"github.com/pborman/getopt/v2"
 	"log"
 	"os"
 	"os/signal"
@@ -21,6 +22,14 @@ func main() {
 
 	// Load conf file
 	conf := mustInitConf()
+	brokerAddr := getopt.StringLong("broker", 'b', "", "The broker address; falls back to the value in the config.json file if not set")
+	getopt.Parse()
+	if *brokerAddr != "" {
+		mqtt, ok := conf["mqtt"].(map[string]interface{})
+		if ok {
+			mqtt["host"] = brokerAddr
+		}
+	}
 
 	if err := communication.StartCommInterface(conf); err != nil {
 		log.Println("an error occurred while starting the communication interface")

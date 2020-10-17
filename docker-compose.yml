@@ -85,7 +85,7 @@ services:
       - mqtt
       - nginx-front
     ports:
-      - 7000:80
+      - 7000:7000
     depends_on:
       - moody-broker
       - moody-api-gw
@@ -95,7 +95,7 @@ services:
     networks:
       - nginx-front
     ports:
-      - 3000:80
+      - 3000:3000
     depends_on:
       - moody-gateway
 

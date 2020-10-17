@@ -16,7 +16,7 @@ This folder contains a react.js application that interfaces with the gateway to 
 
 ## Requirements
 
-Installing the app directly requires node/npm; you can also run it through the available pre-built docker images, or by building one yourself with the Dockerfile shipped in the repo.
+Installing the app directly requires node/npm/make; you can also run it through the available pre-built docker images, or by building one yourself with the Dockerfile shipped in the repo.
 
 ## Installation
 
@@ -25,19 +25,26 @@ Installing the app directly requires node/npm; you can also run it through the a
 You may install the app directly:
 
 ```bash
+# using make
+make build
+make start
+
+# close with
+make stop
+
+# doing everything manually
 cd admin_panel
 npm install
 npm run build
 
-# the easiest way to run the app is serving it using serve
 npm install -g serve
-serve -p 80 -s ./build
+serve -l tcp:/0.0.0.0:3000 -s build/
 ```
 
 Or you can just use a pre-built docker image:
 
 ```bash
-docker run --name moody-adminpanel -p 3000:80 abathargh/moody-go-adminpanel:latest
+docker run --name moody-adminpanel -p 3000:3000 abathargh/moody-go-adminpanel:latest
 ```
 
 Docker images for this application are available for the following architectures:
@@ -55,7 +62,7 @@ Since one of the target device for hosting the front architecture is the Raspber
 
 ## Navigation
 
-The application is presented as a single page app with four different sections that group all of the main features.
+The application is presented as a single page app with four different sections that group all the main features.
 
 ### Monitor
 

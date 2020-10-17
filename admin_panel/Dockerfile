@@ -8,6 +8,6 @@ FROM node:12-alpine
 RUN npm install -g serve
 WORKDIR /app
 COPY --from=builder /app/build .
-EXPOSE 80
+EXPOSE 3000
 
-CMD ["serve", "-l", "tcp://0.0.0.0:80", "-s", "."]
+CMD ["serve", "-l", "tcp://0.0.0.0:3000", "-s", "."]

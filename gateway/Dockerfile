@@ -15,5 +15,5 @@ FROM scratch
 COPY --from=builder /app/moody-gateway /app/moody-gateway
 COPY conf.json .
 
-EXPOSE 80
+EXPOSE 7000
 ENTRYPOINT ["/app/moody-gateway"]
