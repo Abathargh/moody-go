@@ -1,6 +1,8 @@
 build-front :
 	(cd gateway; make gateway)
 	(cd admin_panel; make build)
+	./conf_init.sh
+	./ca_gen.sh
 
 run-front :
 	@mosquitto -d &> /dev/null

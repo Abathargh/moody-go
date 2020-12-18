@@ -20,6 +20,9 @@ You can also run it through docker if you don't want to install go.
 
 ## Installation
 
+Before proceeding with the following instructions, remember to generate the configuration file and the certificates, 
+following the steps contained in the root directory readme.
+
 ### As a standalone application
 You can run the gateway as a standalone application, but you will need to pass the address of the broker you're using, and the one exposing the services API. 
 
@@ -42,7 +45,7 @@ go build -o moody-gateway .
 docker run --name moody-gateway -v ./conf.json:/conf.json -p 7000:7000 abathargh/moody-go-gateway:latest
 ```
 
-### As part of the moody front architecture
+### As a part of the moody front architecture
 
 You can use the moody-backend.yml compose configuration file to set up the backend on a remote machine and pass its address to the gateway. 
 

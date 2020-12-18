@@ -1,7 +1,6 @@
 gateway :
 	go mod download
 	go build -o gateway .
-	./confinit.sh
 
 start : gateway
 	mkdir -p log

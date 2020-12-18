@@ -1,8 +1,13 @@
 package communication
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -80,6 +85,25 @@ func (tt *TopicTicker) Done() {
 
 // Initializes the MQTTClient, for now we don't use a singleton in case in the future there's the need to
 // use multiple clients to manage the traffic in a better way
+
+func newTLSConfig() *tls.Config {
+	certpool := x509.NewCertPool()
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fullPath := filepath.Join(pwd, dataFolder, caFile)
+	ca, err := ioutil.ReadFile(fullPath)
+	if err != nil {
+		log.Fatal("error reading the ca cert")
+	}
+	certpool.AppendCertsFromPEM(ca)
+	return &tls.Config{
+		RootCAs: certpool,
+	}
+}
+
 func (c *MQTTClient) Init(conf interface{}) error {
 	if err := mapstructure.Decode(conf, &(c.config)); err != nil {
 		log.Println("wrong format for the mqtt section of the config file")
@@ -90,9 +114,11 @@ func (c *MQTTClient) Init(conf interface{}) error {
 		return err
 	}
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%v:%v", c.config.Host, c.config.Port))
+	opts.AddBroker(fmt.Sprintf("tls://%v:%v", c.config.Host, c.config.Port))
 	opts.SetPingTimeout(pingTimeout)
+	opts.SetTLSConfig(newTLSConfig())
 	opts.KeepAlive = 0
+
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
 		subscribing := true
 		for subscribing {

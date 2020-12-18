@@ -1,5 +1,6 @@
-conf.json
+data/conf.json
 gateway
 pid.tmp
 
-/log
+log
+data

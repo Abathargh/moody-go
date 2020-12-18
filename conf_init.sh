@@ -5,7 +5,7 @@ default='{
     "serverPort": ":7000",
     "mqtt": {
         "host": "moody-broker",
-        "port": 1883,
+        "port": 8883,
         "dataTopic": [
             "moody/service/+",
             "moody/actserver"
@@ -17,6 +17,20 @@ default='{
     }
 }'
 
+default_mosq='autosave_interval 1800
+persistence true
+retained_persistence true
+persistence_file m2.db
+persistence_location /mosquitto/config/
+connection_messages true
+log_timestamp true
+
+
+listener 8883
+cafile /mosquitto/config/ca.crt
+certfile /mosquitto/config/server.crt
+keyfile /mosquitto/config/server.key'
+
 usage() {
     printf "builds a correct configuration file for the gateway app\n"
     printf "Usage: ./build.sh [default]\n"
@@ -24,7 +38,9 @@ usage() {
 }
 
 init_default() {
-    echo "$default" > conf.json
+    mkdir -p broker gateway/data/
+    echo "$default" > gateway/data/conf.json
+    echo "$default_mosq" > broker/mosquitto.conf
 }
 
 build_conf() {
@@ -48,13 +64,16 @@ build_conf() {
     echo "Insert the address of the mqtt broker:"
     printf "> "
     read -r brokerAddr
+    echo "Insert the port of the mqtt broker:"
+    printf "> "
+    read -r brokerPort
 
     custom='{
     "apiGateway": "'$apiGw'",
     "serverPort": ":'$serverPort'",
     "mqtt": {
         "host": "'$brokerAddr'",
-        "port": 1883,
+        "port": '$brokerPort',
         "dataTopic": [
             "moody/service/+",
             "moody/actserver"
@@ -65,7 +84,24 @@ build_conf() {
         ]
     }
 }'
-    echo "$custom" > conf.json
+
+    custom_mosq='autosave_interval 1800
+    persistence true
+    retained_persistence true
+    persistence_file m2.db
+    persistence_location /mosquitto/config/
+    connection_messages true
+    log_timestamp true
+
+
+    listener '$brokerPort'
+    cafile /mosquitto/config/ca.crt
+    certfile /mosquitto/config/server.crt
+    keyfile /mosquitto/config/server.key'
+
+    mkdir -p broker gateway/data/
+    echo "$custom" > gateway/data/conf.json
+    echo "$custom_mosq" > broker/mosquitto.conf
 }
 
 if [ "$#" -gt 1 ]; then
@@ -83,9 +119,3 @@ case $# in
     0) build_conf ;;
     1) if [ ! "$1" = "default" ]; then echo "expected 'default' arg, got $1"; usage; else init_default; fi ;;
 esac
-
-
-
-
-
-

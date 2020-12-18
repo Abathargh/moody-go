@@ -7,6 +7,11 @@ import (
 	"net/url"
 )
 
+const (
+	dataFolder = "data"
+	caFile     = "ca.crt"
+)
+
 // This is the interface that defines the API for a Client
 // To implement a new protocol, add a Client struct to the package
 // and append it to the client mappings in the var section of this file

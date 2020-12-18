@@ -1,4 +1,5 @@
 FROM golang:alpine AS builder
+# TODO pick max go 1.15 OR implement altSubjects in certs
 
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
@@ -12,8 +13,10 @@ RUN go build -o moody-gateway .
 
 FROM scratch
 
-COPY --from=builder /app/moody-gateway /app/moody-gateway
-COPY conf.json .
+ENV GODEBUG="x509ignoreCN=0"
+
+
+COPY --from=builder /app/moody-gateway /
 
 EXPOSE 7000
-ENTRYPOINT ["/app/moody-gateway"]
+ENTRYPOINT ["/moody-gateway"]

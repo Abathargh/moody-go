@@ -3,84 +3,21 @@ version: "3"
 services:
   moody-broker:
     image: eclipse-mosquitto
+    restart: always
     networks:
       - mqtt
     ports:
-      - 1883:1883
+      - 8883:8883
+    volumes:
+      - ./broker:/mosquitto/config
     command:
-      ["mosquitto", "-v"]
-
-  moody-postgres:
-    image: postgres
-    environment:
-      - POSTGRES_PASSWORD=password
-    networks:
-      - postgres
-    ports: 
-      - 5432:5432
-    volumes:
-      - ./postgres/db_init.sql:/docker-entrypoint-initdb.d/db_init.sql
-      - ./postgres/data:/var/lib/postgresql/data
-
-  moody-mongo:
-    image: mongo
-    networks:
-      - mongo
-    ports:
-      - 27017:27017
-    volumes:
-      - ./mongo/data:/data/db
-
-  moody-api-gw:
-    image: nginx:latest
-    volumes:
-      - ./api_gateway/default.conf:/etc/nginx/conf.d/default.conf
-    networks:
-      - nginx-back
-      - nginx-front
-    ports:
-      - 8080:80
-    depends_on:
-      - moody-neural
-      - moody-dataset
-      - moody-service
-
-  moody-neural:
-    build: ./neural
-    networks:
-      - nginx-back
-      - mongo
-    depends_on:
-      - moody-mongo
-
-  moody-dataset:
-    build: ./dataset
-    networks:
-      - nginx-back
-      - mongo
-    depends_on:
-      - moody-mongo
-
-  moody-service:
-    build: ./service
-    networks:
-      - nginx-back
-      - postgres
-    depends_on:
-      - moody-postgres
-
-  moody-situation:
-    build: ./situation
-    networks:
-      - nginx-back
-      - postgres
-    depends_on:
-      - moody-postgres
+      ["/usr/sbin/mosquitto", "-c", "/mosquitto/config/mosquitto.conf", "-v"]
 
   moody-gateway:
     build: ./gateway
-    volumes: 
-      - ./gateway/conf.json:/conf.json
+    restart: always
+    volumes:
+      - ./gateway/data:/data
     networks:
       - mqtt
       - nginx-front
@@ -92,6 +29,7 @@ services:
 
   moody-adminpanel:
     build: ./admin_panel
+    restart: always
     networks:
       - nginx-front
     ports:
@@ -99,6 +37,79 @@ services:
     depends_on:
       - moody-gateway
 
+  moody-postgres:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=password
+    networks:
+      - postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres/db_init.sql:/docker-entrypoint-initdb.d/db_init.sql
+      - ./postgres/data:/var/lib/postgresql/data
+
+  moody-mongo:
+    image: mongo
+    restart: always
+    networks:
+      - mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo/data:/data/db
+
+  moody-api-gw:
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./api_gateway/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - nginx-front
+      - nginx-back
+    ports:
+      - 8080:80
+    depends_on:
+      - moody-neural
+      - moody-dataset
+      - moody-service
+
+  moody-neural:
+    restart: always
+    build: ./neural
+    networks:
+      - nginx-back
+      - mongo
+    depends_on:
+      - moody-mongo
+
+  moody-dataset:
+    build: ./dataset
+    restart: always
+    networks:
+      - nginx-back
+      - mongo
+    depends_on:
+      - moody-mongo
+
+  moody-service:
+    build: ./service
+    restart: always
+    networks:
+      - nginx-back
+      - postgres
+    depends_on:
+      - moody-postgres
+
+  moody-situation:
+    build: ./situation
+    restart: always
+    networks:
+      - nginx-back
+      - postgres
+    depends_on:
+      - moody-postgres
 
 networks:
   mqtt:
