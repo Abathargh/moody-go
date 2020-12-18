@@ -6,7 +6,7 @@ The gateway receives data from sensors and forwards it to the services and to ac
 - [Requirements](#requirements)
 - [Installation](#installation)
     - [As a standalone application](#as-a-standalone-application)
-    - [As part of the moody front architecture](#as-part-of-the-moody-front-architecture)
+    - [As part of the moody front architecture](#as-a-part-of-the-moody-front-architecture)
 - [Functionalities](#functionalities)
     - [Services](#services)
     - [Actuator Mode](#actuator-mode)

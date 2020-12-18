@@ -1,5 +1,4 @@
-FROM golang:alpine AS builder
-# TODO pick max go 1.15 OR implement altSubjects in certs
+FROM golang:1.15-alpine AS builder
 
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
