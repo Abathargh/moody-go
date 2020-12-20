@@ -32,7 +32,7 @@ certfile /mosquitto/config/server.crt
 keyfile /mosquitto/config/server.key'
 
 usage() {
-    printf "builds a correct configuration file for the gateway app\n"
+    printf "builds a correct configuration file for the gateway and for the broker\n"
     printf "Usage: ./build.sh [default]\n"
     printf "\tdefault: generates a default configuration file without any user interaction\n"
 }
@@ -44,7 +44,7 @@ init_default() {
 }
 
 build_conf() {
-    echo "Do you want a default configuration file to be crated? [y/n]"
+    echo "Do you want a default configuration file to be created? [y/n]"
     while true; do
         printf "> "
         read -r defconf

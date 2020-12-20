@@ -6,7 +6,11 @@ version (eventlet/flask-socketio with threading/multiprocessing).
 The actual implementation contains many services running on a series of docker containers, with the original 
 python3/moody neural service.
 
+## Contents
 
+- [Installation](#installation)
+    - [Configuration and certificates setup](#configuration-and-certificates-setup)
+    - [Run via docker-compose](#run-via-docker-compose)
 ## Installation
 
 Clone the repo and cd into it:
@@ -19,10 +23,10 @@ cd moody-go
 
 ### Configuration and certificates setup
 
-The will allow you to set up the configuration files and the certificates for the broker and gateway.
+The following will allow you to set up the configuration files and the certificates for the broker and gateway.
 
 When running **conf_init.sh** you will be prompted with a request to generate a default json configuration file or 
-custom configuration, which will be guided. The generated file can be found in **gateway/data/conf.json** and can be 
+a custom one, which will be guided. The generated file can be found in **gateway/data/conf.json** and can be 
 modified manually or by running the script again. You can also directly use the script to generate a default file.
 
 ```bash
@@ -46,7 +50,7 @@ the only argument.
 ./ca_gen.sh hostname
 ```
 
-### Via docker-compose:
+### Run via docker-compose:
 
 Once you have initialized the configuration files and the certificates, you can start using moody through docker,
 interfacing with the admin panel reachable from http://localhost:3000.
@@ -58,3 +62,18 @@ docker-compose up --build -d
 
 Pre-built images for each service are available at https://hub.docker.com/u/abathargh.
 More instructions about every feature can be found in each subfolder.
+
+
+### Run front-side via make
+
+If your backend services are hosted on another machine, where the api gateway is reachable, you can build and run 
+the front-side (broker + gateway + webapp) via make. In this case you will need to install nodejs, npm mosquitto and 
+golang, then run:
+
+```bash
+make build-front
+make run-front
+
+# Stop with
+make stop-front
+```
