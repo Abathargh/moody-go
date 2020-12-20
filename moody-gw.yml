@@ -3,6 +3,8 @@ version: "3"
 services:
   moody-broker:
     image: eclipse-mosquitto
+    volumes:
+
     networks:
       - mqtt
     ports:
@@ -13,12 +15,12 @@ services:
   moody-gateway:
     image: abathargh/moody-go-gateway:latest
     volumes:
-      - ./gateway/conf.json:/conf.json
+      - ./gateway/data:/data
     networks:
       - mqtt
       - gw-front
     ports:
-      - 7000:80
+      - 7000:7000
     depends_on:
       - moody-broker
 
@@ -27,7 +29,7 @@ services:
     networks:
       - gw-front
     ports:
-      - 3000:80
+      - 3000:3000
     depends_on:
       - moody-gateway
 

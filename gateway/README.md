@@ -42,7 +42,7 @@ go mod download
 go build -o moody-gateway .
 
 # or use the prebuilt docker image
-docker run --name moody-gateway -v ./conf.json:/conf.json -p 7000:7000 abathargh/moody-go-gateway:latest
+docker run --name moody-gateway -v ./gateway/data:/data -p 7000:7000 abathargh/moody-go-gateway:latest
 ```
 
 ### As a part of the moody front architecture
