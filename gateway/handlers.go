@@ -51,8 +51,8 @@ func forwardToApiGW(w http.ResponseWriter, r *http.Request) {
 }
 
 // [GET] /neural_state
-// returns a view of the neural state of the app, containing information about
-// the neural engine state and the current dataset in use
+// returns a view of the dataset state of the app, containing information about
+// the dataset engine state and the current dataset in use
 func getNeuralState(w http.ResponseWriter, r *http.Request) {
 	state := communication.NeuralState
 	w.WriteHeader(http.StatusOK)
@@ -79,7 +79,7 @@ func DatasetKeysIfExists(state models.NeuralState) ([]string, error) {
 }
 
 // [PUT] /neural_state {mode: DataMode, dataset: str}
-// sets the neural engine to the passed mode, using the passed dataset
+// sets the dataset engine to the passed mode, using the passed dataset
 func setNeuralState(w http.ResponseWriter, r *http.Request) {
 	newState := models.NeuralState{}
 	w.Header().Set("Content-Type", "application/json")
@@ -111,7 +111,7 @@ func setNeuralState(w http.ResponseWriter, r *http.Request) {
 	}
 
 	communication.NeuralState = newState
-	log.Printf("New neural state: %+v\n", communication.NeuralState)
+	log.Printf("New dataset state: %+v\n", communication.NeuralState)
 	w.WriteHeader(http.StatusOK)
 	models.MustEncode(w, newState)
 }
@@ -318,7 +318,7 @@ func deactivateService(w http.ResponseWriter, r *http.Request) {
 }
 
 // [PUT] /situation {id: int}
-// changes the value of the current situation; this is used in the collecting mode of the neural engine
+// changes the value of the current situation; this is used in the collecting mode of the dataset engine
 func setSituation(w http.ResponseWriter, r *http.Request) {
 	situationRequest := models.SituationRequest{}
 	w.Header().Set("Content-Type", "application/json")

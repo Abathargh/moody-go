@@ -1,5 +1,0 @@
-{
-  "db_host": "moody-mongo",
-  "db_port": 27017,
-  "db_name": "dataset"
-}
