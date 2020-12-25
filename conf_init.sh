@@ -4,7 +4,7 @@ default='{
     "apiGateway": "http://moody-api-gw/",
     "serverPort": ":7000",
     "mqtt": {
-        "host": "moody-broker",
+        "host": "'$HOSTNAME'",
         "port": 8883,
         "dataTopic": [
             "moody/service/+",
@@ -18,6 +18,20 @@ default='{
 }'
 
 default_mosq='autosave_interval 1800
+persistence true
+retained_persistence true
+persistence_file m2.db
+persistence_location '$(pwd)'/broker
+connection_messages true
+log_timestamp true
+
+
+listener 8883
+cafile '$(pwd)'/broker/ca.crt
+certfile '$(pwd)'/broker/server.crt
+keyfile '$(pwd)'/broker/server.key'
+
+docker_mosq='autosave_interval 1800
 persistence true
 retained_persistence true
 persistence_file m2.db
@@ -41,6 +55,12 @@ init_default() {
     mkdir -p broker gateway/data/
     echo "$default" > gateway/data/conf.json
     echo "$default_mosq" > broker/mosquitto.conf
+}
+
+docker_default() {
+    mkdir -p broker gateway/data/
+    echo "$default" > gateway/data/conf.json
+    echo "$docker_mosq" > broker/mosquitto.conf
 }
 
 build_conf() {
@@ -67,6 +87,12 @@ build_conf() {
     echo "Insert the port of the mqtt broker:"
     printf "> "
     read -r brokerPort
+    echo "Insert the path to the broker config directory (leave empty for the default one):"
+    printf "> "
+    read -r brokerDir
+    if [ -z "$brokerDir" ]; then brokerDir="$(pwd)/broker"; fi
+
+
 
     custom='{
     "apiGateway": "'$apiGw'",
@@ -86,18 +112,18 @@ build_conf() {
 }'
 
     custom_mosq='autosave_interval 1800
-    persistence true
-    retained_persistence true
-    persistence_file m2.db
-    persistence_location /mosquitto/config/
-    connection_messages true
-    log_timestamp true
+persistence true
+retained_persistence true
+persistence_file m2.db
+persistence_location '$brokerDir'
+connection_messages true
+log_timestamp true
 
 
-    listener '$brokerPort'
-    cafile /mosquitto/config/ca.crt
-    certfile /mosquitto/config/server.crt
-    keyfile /mosquitto/config/server.key'
+listener '$brokerPort'
+cafile '$brokerDir'/ca.crt
+certfile '$brokerDir'/server.crt
+keyfile '$brokerDir'/server.key'
 
     mkdir -p broker gateway/data/
     echo "$custom" > gateway/data/conf.json
@@ -117,5 +143,14 @@ fi
 
 case $# in
     0) build_conf ;;
-    1) if [ ! "$1" = "default" ]; then echo "expected 'default' arg, got $1"; usage; else init_default; fi ;;
+    1)
+      if [ "$1" = "default" ] || [ "$1" = "docker" ]; then
+        case $1 in
+          "default") init_default;;
+          "docker") docker_default;;
+        esac
+      else
+        echo "expected 'default' arg, got $1"
+        usage
+      fi
 esac

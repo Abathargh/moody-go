@@ -35,6 +35,9 @@ modified manually or by running the script again. You can also directly use the 
 
 # This will automatically generate a default configuration file
 ./conf_init.sh default 
+
+# Run this to have a default configuration that is compatible with the docker-compose architecture
+./conf_init.sh docker
 ```
 
 The **ca_gen.sh** script will generate eveything that's needed to enable the usage of MQTT with TLS. If it's called

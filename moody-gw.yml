@@ -3,31 +3,35 @@ version: "3"
 services:
   moody-broker:
     image: eclipse-mosquitto
-    volumes:
-
+    restart: always
     networks:
       - mqtt
     ports:
-      - 1883:1883
+      - 8883:8883
+    volumes:
+      - ./broker:/mosquitto/config
     command:
-      ["mosquitto", "-v"]
+      ["/usr/sbin/mosquitto", "-c", "/mosquitto/config/mosquitto.conf", "-v"]
 
   moody-gateway:
-    image: abathargh/moody-go-gateway:latest
+    build: ./gateway
+    restart: always
     volumes:
       - ./gateway/data:/data
     networks:
       - mqtt
-      - gw-front
+      - nginx-front
     ports:
       - 7000:7000
     depends_on:
       - moody-broker
+      - moody-api-gw
 
   moody-adminpanel:
-    image: abathargh/moody-go-adminpanel:latest
+    build: ./admin_panel
+    restart: always
     networks:
-      - gw-front
+      - nginx-front
     ports:
       - 3000:3000
     depends_on:

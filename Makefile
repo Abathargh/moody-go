@@ -5,7 +5,7 @@ build-front :
 	./ca_gen.sh
 
 run-front :
-	@mosquitto -d &> /dev/null
+	@mosquitto -c ./broker/mosquitto.conf -d &> /dev/null
 	@cd gateway && make -s start
 	@cd admin_panel && make -s start
 
