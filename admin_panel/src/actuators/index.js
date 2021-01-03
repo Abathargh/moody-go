@@ -1,8 +1,8 @@
-import React, { Component } from "react";
-import socketIOClient from "socket.io-client";
-import { Empty, Error, Loading } from "./Errors"
 import { ActivateServerMode, DeactivateServerMode } from "./ActuatorModeBoxes"
+import { w3cwebsocket as W3CWebSocket } from "websocket";
+import { Empty, Error, Loading } from "./Errors"
 import ActuatorGrid from "./ActuatorGrid";
+import React, { Component } from "react";
 import "./Boxes.css";
 
 import Actuator from "./models/Actuator"
@@ -18,15 +18,20 @@ let url = new URL(window.location.origin);
 url.port = process.env.REACT_APP_API_PORT;
 let gateway = url.origin;
 
-const socketioEndpoint = gateway + "/";
-const socketioEvent = "actuator";
-
-
 const urls = [
     "/actuators",
     "/situation",
     "/actuator_mode",
 ].map(url => gateway + url);
+
+url.protocol = "ws:";
+const wsURL = url.origin + "/actuator_ws";
+
+const client = new W3CWebSocket(wsURL);
+client.onopen = () => {
+    console.log('WebSocket Client Connected');
+};
+
 
 
 export default class Actuators extends Component {
@@ -43,6 +48,18 @@ export default class Actuators extends Component {
         this.addMapping = this.addMapping.bind(this);
         this.deleteMappings = this.deleteMappings.bind(this);
         this.switchActuatorMode = this.switchActuatorMode.bind(this);
+
+        client.onmessage = (message) => {
+            //atob
+            let rawActuator = JSON.parse(message.data);
+            if(Actuator.isActuatorData(rawActuator)) {
+                const situations = this.state.situationList;
+                let dataActuator = Actuator.init(rawActuator.ip, rawActuator.mappings, situations);
+                let actuators = this.state.actuatorList;
+                actuators.push(dataActuator);
+                this.setState({ isLoaded: true, actuatorList: actuators });
+            }
+        };
     }
 
     componentDidMount() {
@@ -62,15 +79,6 @@ export default class Actuators extends Component {
                 error => this.setState({ isLoaded: true, error })
             );
 
-        const socket = socketIOClient(socketioEndpoint);
-        socket.on(socketioEvent, data => {
-            const situations = this.state.situationList;
-            let rawActuator = JSON.parse(atob(data));
-            let dataActuator = Actuator.init(rawActuator.ip, rawActuator.mappings, situations);
-            let actuators = this.state.actuatorList;
-            actuators.push(dataActuator);
-            this.setState({ isLoaded: true, actuatorList: actuators });
-        });
     }
 
     addMapping(ip, situation, action) {

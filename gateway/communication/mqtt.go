@@ -17,6 +17,9 @@ import (
 )
 
 const (
+	dataFolder = "data"
+	caFile     = "ca.crt"
+
 	serviceSubTopic       = 0
 	actServerTopic        = 1
 	modeSwitchTopic       = 0

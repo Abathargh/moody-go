@@ -13,7 +13,7 @@ export default class SituationState {
         if (!apiResp.isSet) {
             return new SituationState(false, null, "None");
         }
-        var situation = apiResp.situation;
+        let situation = apiResp.situation;
         return new SituationState(true, situation.id, situation.name);
     }
 }

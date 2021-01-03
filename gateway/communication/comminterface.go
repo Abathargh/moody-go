@@ -7,11 +7,6 @@ import (
 	"net/url"
 )
 
-const (
-	dataFolder = "data"
-	caFile     = "ca.crt"
-)
-
 // This is the interface that defines the API for a Client
 // To implement a new protocol, add a Client struct to the package
 // and append it to the client mappings in the var section of this file
@@ -48,10 +43,8 @@ var (
 	Situation      *models.Situation
 	ActuatorIPs    *models.SynchronizedStringSet
 
-	exposer   *SocketioExposer
+	exposer   *WebSocketForwarder
 	forwarder *DataForwarder
-
-	SioServer *SocketioServer
 
 	ActuatorMode = true
 )
@@ -64,13 +57,6 @@ func StartCommInterface(conf map[string]interface{}) error {
 	NeuralState = models.NeuralState{
 		Mode:    models.Stopped,
 		Dataset: "",
-	}
-
-	// Start the socketio Server
-	var socketioErr error
-	SioServer, socketioErr = NewSocketioServer()
-	if socketioErr != nil {
-		return socketioErr
 	}
 
 	// Check that the right type of data was passed through the conf file
@@ -120,7 +106,6 @@ func CommConnect() error {
 			return err
 		}
 	}
-	go SioServer.Serve()
 	return nil
 }
 
@@ -150,5 +135,4 @@ func CommClose() {
 	for _, ifc := range clientMapping {
 		ifc.Close()
 	}
-	SioServer.Close()
 }
