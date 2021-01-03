@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"gateway/communication"
 	"log"
+	"net"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -55,7 +58,8 @@ func HttpListenAndServer(port string) *http.Server {
 	router.HandleFunc("/actuators", actuatorMux)
 	router.HandleFunc("/sensor_service", serviceMux)
 	router.HandleFunc("/current_situation", situationMux)
-	router.Handle("/socket.io/", communication.SioServer.Server)
+	router.HandleFunc("/service_ws", communication.ServeServiceWS)
+	router.HandleFunc("/actuator_ws", communication.ServeActuatorWS)
 	router.Use(allowAllCorsMiddleware)
 	router.Use(logRequestResponseMiddleWare)
 	server := &http.Server{Addr: port, Handler: router}
@@ -166,4 +170,12 @@ func (lrw *loggingResponseWriter) WriteHeader(code int) {
 	lrw.statusCode = code
 	lrw.method = lrw.request.Method
 	lrw.url = lrw.request.URL.Path
+}
+
+func (lrw *loggingResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	h, ok := lrw.ResponseWriter.(http.Hijacker)
+	if !ok {
+		return nil, nil, errors.New("hijack not supported")
+	}
+	return h.Hijack()
 }
