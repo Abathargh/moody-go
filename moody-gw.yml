@@ -20,7 +20,6 @@ services:
       - ./gateway/data:/data
     networks:
       - mqtt
-      - nginx-front
     ports:
       - 7000:7000
     depends_on:
@@ -29,8 +28,6 @@ services:
   moody-adminpanel:
     build: ./admin_panel
     restart: always
-    networks:
-      - nginx-front
     ports:
       - 3000:3000
     depends_on:
@@ -38,4 +35,3 @@ services:
 
 networks:
   mqtt:
-  gw-front:
