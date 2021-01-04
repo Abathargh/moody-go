@@ -98,6 +98,8 @@ func forwardToDataset(evt models.DataEvent) {
 			return
 		}
 		log.Printf("Succesfully added the record to the dataset %s", NeuralState.Dataset)
+	} else {
+		fmt.Printf("%v - %v\n", ActiveServices.AsSlice(), DataTable.Keys())
 	}
 }
 
@@ -145,7 +147,7 @@ type WebSocketForwarder struct {
 	incomingActuatorChan chan string
 }
 
-func NewSocketioExposer(bufferSize int) *WebSocketForwarder {
+func NewWebsocketForwarder(bufferSize int) *WebSocketForwarder {
 	exposer := WebSocketForwarder{
 		incomingDataChan:     make(chan models.DataEvent, bufferSize),
 		incomingActuatorChan: make(chan string, bufferSize),

@@ -7,6 +7,10 @@ import (
 	"net/url"
 )
 
+const (
+	bufferSize = 5
+)
+
 // This is the interface that defines the API for a Client
 // To implement a new protocol, add a Client struct to the package
 // and append it to the client mappings in the var section of this file
@@ -18,17 +22,6 @@ type Client interface {
 	StopTicker()
 	Close()
 }
-
-// A ticker periodically sends a message to each actuator using a given protocol
-// Its Tick method must be called in a separate goroutine since it's blocking
-type Ticker interface {
-	Tick()
-	Done()
-}
-
-const (
-	bufferSize = 5
-)
 
 var (
 	clientMapping = map[string]Client{
@@ -91,7 +84,7 @@ func StartCommInterface(conf map[string]interface{}) error {
 	}
 
 	// Start the observers' goroutines
-	exposer = NewSocketioExposer(bufferSize)
+	exposer = NewWebsocketForwarder(bufferSize)
 	forwarder = NewDataForwarder(bufferSize)
 	go forwarder.ListenForUpdates()
 	go exposer.ListenForUpdates()

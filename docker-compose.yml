@@ -71,18 +71,8 @@ services:
     ports:
       - 8080:80
     depends_on:
-      - moody-neural
       - moody-dataset
       - moody-service
-
-  moody-neural:
-    restart: always
-    build: dataset
-    networks:
-      - nginx-back
-      - mongo
-    depends_on:
-      - moody-mongo
 
   moody-dataset:
     build: ./dataset

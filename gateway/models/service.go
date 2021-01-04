@@ -19,3 +19,8 @@ type ServicesResponse struct {
 	Services     []string `json:"services"`
 	ServiceCount int      `json:"count"`
 }
+
+type ServiceTableResponse struct {
+	Table        map[string]string `json:"services"`
+	ServiceCount int               `json:"count"`
+}

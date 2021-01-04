@@ -26,17 +26,17 @@ const (
 	situationForwardTopic = 1
 
 	//quiesce     = 50 // Client disconnect quiescence
-	pingTimeout         = 2 * time.Second
-	topicTickerInterval = 10 * time.Second
+	pingTimeout = 2 * time.Second
 )
 
 // MQTTClient implements the communication.Client ui
 // and serves as the clients that receives the mqtt traffic from the
 // WSAN in a similar way to BLE Centrals.
 type MQTTClient struct {
-	client mqtt.Client
-	config MQTTConfig
-	ticker *TopicTicker
+	client       mqtt.Client
+	config       MQTTConfig
+	ticker       *TopicTicker
+	reconnTicker *ConnCheckTicker
 }
 
 // MQTTConfig stores the information contained in the mqtt section of the conf.json
@@ -45,45 +45,6 @@ type MQTTConfig struct {
 	Port      int      `validate:"nonzero,min=1,max=65536" json:"port"`
 	DataTopic []string `validate:"nonzero,len=2" json:"dataTopic"` // 2 sub topic in the standard mqtt implementation
 	PubTopics []string `validate:"nonzero,len=2" json:"pubTopics"` // 2 pub topic in the standard mqtt implementation
-}
-
-// Ticker implementation for the MQTT protocol
-type TopicTicker struct {
-	endTickChan  chan bool
-	tickInterval time.Duration
-	ticker       *time.Ticker
-	topic        string
-	client       *mqtt.Client
-}
-
-// Creates a new TopicTicker that periodically sends MQTT messages on the passed topic.
-func NewTopicTicker(tickInterval time.Duration, topic string, client *mqtt.Client) *TopicTicker {
-	return &TopicTicker{
-		tickInterval: tickInterval,
-		endTickChan:  make(chan bool),
-		topic:        topic,
-		client:       client,
-	}
-}
-
-func (tt *TopicTicker) Tick() {
-	tt.ticker = time.NewTicker(tt.tickInterval)
-	for {
-		select {
-		case <-tt.endTickChan:
-			return
-		case <-tt.ticker.C:
-			token := (*tt.client).Publish(tt.topic, 0, false, "1")
-			if token.Wait() && token.Error() != nil {
-				log.Println(token.Error())
-			}
-		}
-	}
-}
-
-func (tt *TopicTicker) Done() {
-	tt.ticker.Stop()
-	tt.endTickChan <- true
 }
 
 // Initializes the MQTTClient, for now we don't use a singleton in case in the future there's the need to
@@ -138,7 +99,8 @@ func (c *MQTTClient) Init(conf interface{}) error {
 	})
 
 	c.client = mqtt.NewClient(opts)
-	c.ticker = NewTopicTicker(topicTickerInterval, c.config.PubTopics[modeSwitchTopic], &c.client)
+	c.ticker = NewTopicTicker(c.config.PubTopics[modeSwitchTopic], &c.client)
+	c.reconnTicker = NewConnCheckTicker(&c.client)
 	return nil
 }
 

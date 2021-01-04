@@ -57,6 +57,7 @@ func HttpListenAndServer(port string) *http.Server {
 	router.HandleFunc("/actuator_mode", actuatorModeMux)
 	router.HandleFunc("/actuators", actuatorMux)
 	router.HandleFunc("/sensor_service", serviceMux)
+	router.HandleFunc("/data_table", tableMux)
 	router.HandleFunc("/current_situation", situationMux)
 	router.HandleFunc("/service_ws", communication.ServeServiceWS)
 	router.HandleFunc("/actuator_ws", communication.ServeActuatorWS)
@@ -124,6 +125,16 @@ func situationMux(w http.ResponseWriter, r *http.Request) {
 		setSituation(w, r)
 	case http.MethodGet:
 		getSituation(w, r)
+	case http.MethodOptions:
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func tableMux(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		getDataTable(w, r)
 	case http.MethodOptions:
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)

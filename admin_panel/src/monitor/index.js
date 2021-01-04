@@ -7,7 +7,7 @@ import ServiceGrid from "./ServiceGrid";
 let url = new URL(window.location.origin);
 
 url.port = process.env.REACT_APP_API_PORT
-const serviceURL = url.origin + "/sensor_service";
+const serviceURL = url.origin + "/data_table";
 
 url.protocol = "ws:";
 const wsURL = url.origin + "/service_ws";
@@ -43,8 +43,11 @@ export default class Monitor extends Component {
         const resp = await fetch(serviceURL);
         try {
             const respObj = await resp.json();
-            const services = respObj.services.map(service => new ServiceData(service,"-"))
-            this.setState({ isLoaded: true, serviceList: services })
+            let serviceList = [];
+            for(let [key, value] of Object.entries(respObj.services)) {
+                serviceList.push(new ServiceData(key, value));
+            }
+            this.setState({ isLoaded: true, serviceList: serviceList })
         } catch(err) {
             this.setState({ isLoaded: true, error: err })
         }

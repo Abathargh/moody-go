@@ -369,3 +369,29 @@ func getSituation(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	models.MustEncode(w, situationResp)
 }
+
+// [GET] /data_table
+// returns an object containing the current readings relative to each active service
+func getDataTable(w http.ResponseWriter, _ *http.Request) {
+	table := make(map[string]string)
+	for _, service := range communication.ActiveServices.AsSlice() {
+		val, ok := communication.DataTable.Table()[service]
+		if !ok {
+			table[service] = "-"
+		} else {
+			// check if float is actually int
+			if val == float64(int(val)) {
+				table[service] = fmt.Sprintf("%d", int(val))
+			} else {
+				table[service] = fmt.Sprintf("%.1f", val)
+			}
+		}
+	}
+	resp := models.ServiceTableResponse{
+		Table:        table,
+		ServiceCount: len(table),
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	models.MustEncode(w, resp)
+}

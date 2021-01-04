@@ -59,6 +59,12 @@ func (table *DataTable) Remove(key string) {
 	delete(table.data, key)
 }
 
+func (table *DataTable) Table() map[string]float64 {
+	table.mutex.Lock()
+	defer table.mutex.Unlock()
+	return table.data
+}
+
 func (table *DataTable) Attach(evtChan chan<- DataEvent) {
 	table.mutex.Lock()
 	defer table.mutex.Unlock()

@@ -25,10 +25,6 @@ var (
 	}
 )
 
-type SocketioServer struct {
-	ServerConn *websocket.Conn
-}
-
 type ServiceDataEvent struct {
 	Service string  `json:"service"`
 	Data    float64 `json:"data"`
