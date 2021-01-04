@@ -113,7 +113,7 @@ func forwardToNeural(evt models.DataEvent) {
 			log.Println(err)
 			return
 		}
-		datasetEndpoint := fmt.Sprintf("%s%s", ApiGatewayAddress.String(), "neural/predict")
+		datasetEndpoint := fmt.Sprintf("%s%s", ApiGatewayAddress.String(), "dataset/predict")
 		resp, postErr := http.Post(datasetEndpoint, "application/json", bytes.NewBuffer(jsonTable))
 		if postErr != nil {
 			log.Println(postErr)

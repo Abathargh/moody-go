@@ -1,5 +1,5 @@
 // An enum representing the three possible states of
-// the neural engine running on the gateway
+// the dataset engine running on the gateway
 const Mode = Object.freeze({
     "Stopped": "Stopped",
     "Collecting": "Collecting",

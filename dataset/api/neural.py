@@ -1,6 +1,6 @@
 """
-Neural mode exposing the interface to the neural network.
-A global instance of the neural network ensures the single interface and is
+Neural mode exposing the interface to the dataset network.
+A global instance of the dataset network ensures the single interface and is
 accessible in a controlled manner by means of the get_neural function.
 """
 
@@ -22,13 +22,13 @@ logging.basicConfig(level=logging.INFO)
 
 class NeuralInterface:
     """
-    A class that offers an interface with the neural network.
+    A class that offers an interface with the dataset network.
     Implemented here as a class to support future use with multiple instances for different uses.
     """
 
     TIME_LIMIT = 3600  # Seconds, one update per hour
-    # Fine tuned parameters, to be changed accordingly to the specific instance of neural network
-    # in the query release, then start the neural training
+    # Fine tuned parameters, to be changed accordingly to the specific instance of dataset network
+    # in the query release, then start the dataset training
     # 3 layer of hidden nodes, with 20, 30, 20 nodes each
     HIDDEN_LAYER_SIZE = (20, 30, 20)
     MAX_ITER = 500  # epochs
@@ -59,7 +59,7 @@ class NeuralInterface:
         train_data, test_data, train_situations, test_situations = train_test_split(
             data, situations)
 
-        # Format, test and transform the data accordingly to the neural network
+        # Format, test and transform the data accordingly to the dataset network
         self._scaler = StandardScaler()
         self._scaler.fit(train_data)
         train_data = self._scaler.transform(train_data)

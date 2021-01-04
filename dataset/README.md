@@ -38,7 +38,7 @@ gunicorn -b 0.0.0.0:80 app:app
 You can also run the module using our docker image:
 
 ```bash
-docker run --name moody-neural -p <port>:80 abathargh/moody-go-neural:latest
+docker run --name moody-dataset -p <port>:80 abathargh/moody-go-dataset:latest
 ```
 
 ### As part of the moody back architecture
