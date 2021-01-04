@@ -1,4 +1,13 @@
 export default class Actuator {
+    constructor(ip, mappingList) {
+        this.ip = ip;
+        this.mappingList = mappingList;
+    }
+
+    static isActuatorData(obj) {
+        return obj.hasOwnProperty("ip");
+    }
+
     static init(ip, mappingList, situationList) {
         console.log(situationList);
         console.log(mappingList);
@@ -15,10 +24,5 @@ export default class Actuator {
         const targetSituationIndex = situationList.findIndex(situation => situation.id === mapping.situation);
         mapping.situation = situationList[targetSituationIndex].name;
         return mapping;
-    }
-
-    constructor(ip, mappingList) {
-        this.ip = ip;
-        this.mappingList = mappingList;
     }
 }

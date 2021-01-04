@@ -140,13 +140,13 @@ func forwardToNeural(evt models.DataEvent) {
 }
 
 // Observer that expose data to the web app
-type SocketioExposer struct {
+type WebSocketForwarder struct {
 	incomingDataChan     chan models.DataEvent
 	incomingActuatorChan chan string
 }
 
-func NewSocketioExposer(bufferSize int) *SocketioExposer {
-	exposer := SocketioExposer{
+func NewSocketioExposer(bufferSize int) *WebSocketForwarder {
+	exposer := WebSocketForwarder{
 		incomingDataChan:     make(chan models.DataEvent, bufferSize),
 		incomingActuatorChan: make(chan string, bufferSize),
 	}
@@ -155,18 +155,18 @@ func NewSocketioExposer(bufferSize int) *SocketioExposer {
 	return &exposer
 }
 
-func (se *SocketioExposer) ListenForUpdates() {
+func (se *WebSocketForwarder) ListenForUpdates() {
 	for {
 		select {
 		case ip := <-se.incomingActuatorChan:
 			evt := ActuatorConnectedEvent{IP: ip}
-			SioServer.ForwardActuatorData(evt)
+			ForwardActuatorData(evt)
 		case dataEvt := <-se.incomingDataChan:
 			evt := ServiceDataEvent{
 				Service: dataEvt.ChangedKey,
 				Data:    dataEvt.ChangedValue,
 			}
-			SioServer.ForwardServiceData(evt)
+			ForwardServiceData(evt)
 		}
 	}
 }

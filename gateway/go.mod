@@ -4,8 +4,8 @@ go 1.14
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.2.0
-	github.com/googollee/go-socket.io v1.4.3
 	github.com/gorilla/mux v1.7.4
+	github.com/gorilla/websocket v1.4.1
 	github.com/mitchellh/mapstructure v1.3.1
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pborman/getopt/v2 v2.1.0

@@ -20,14 +20,14 @@ export default class NeuralState {
     }
 
     static FromAPI(apiResp) {
-        var mode = stateMapping[apiResp.mode];
-        var dataset = apiResp.dataset === "" ? "None" : apiResp.dataset;
+        let mode = stateMapping[apiResp.mode];
+        let dataset = apiResp.dataset === "" ? "None" : apiResp.dataset;
         return new NeuralState(mode, dataset);
     }
 
     toReqFormat() {
-        var mode = stateMapping.indexOf(this.mode);
-        var dataset = this.dataset === "None" ? "" : this.dataset;
+        let mode = stateMapping.indexOf(this.mode);
+        let dataset = this.dataset === "None" ? "" : this.dataset;
         return { mode: mode, dataset: dataset };
     }
 
