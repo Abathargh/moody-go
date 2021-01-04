@@ -25,7 +25,6 @@ services:
       - 7000:7000
     depends_on:
       - moody-broker
-      - moody-api-gw
 
   moody-adminpanel:
     build: ./admin_panel
