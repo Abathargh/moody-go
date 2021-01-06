@@ -1,6 +1,6 @@
-# *neural*
+# *dataset*
 
-The implementation of the neural network service of the moody project; a very simple service which analyzes the 
+The implementation of the dataset service of the moody project; a very simple service which stores and analyzes the 
 collected data.
 
 ## Contents
@@ -9,8 +9,6 @@ collected data.
     - [As a standalone application](#as-a-standalone-application)
     - [As part of the moody front architecture](#as-part-of-the-moody-back-architecture)
     - [Pre-built wheels for ARM architectures](#pre-built-wheels-for-arm-architectures)
-- [Endpoints](#endpoints)
-
 
 ## Requirements
 
@@ -55,7 +53,3 @@ If you use our pre-built image, or you're going to build an image from the Docke
 These were built from source and were not modified by any means, but, as specified in the repo license, I have no responsibilities for anything that may happen by using them. 
 
 If you don't trust those wheels, it's better to install the libraries from source yourself, or to build your own wheels.
-
-## Endpoints
-
-The only exposed endpoint is **/predict**, that accepts POST requests passing the name of the dataset on which a prediction is requested, plus a query as an input.

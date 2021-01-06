@@ -66,9 +66,6 @@ The pre-built images shared on docker hub and used in the compose files and in t
 - arm32v7
 - aarch64 (arm64 or arm64v8)
 
-**N.B.** there's currently a bug in the googollee/go-socket.io library specifically on arm32v7 architectures that prevents some functionalities from properly working. Since one of the main target devices to run the gateway is the Raspberry Pi, I suggest to use the experimental 64-bit Raspberry Pi OS, where the application was tested and is currently being used and worked on.
-
-
 ## Functionalities
 
 The application functions as a gateway for the requests that have to be forwarded to the upper layer of the architecture (dataset, neural services, etc.) and as a aggregator of data coming from the sensors. 

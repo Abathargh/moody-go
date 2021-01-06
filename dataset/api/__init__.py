@@ -1,4 +1,4 @@
-from webargs.flaskparser import use_args, parser, abort
+from webargs.flaskparser import use_args
 from webargs import fields
 
 from flask_restplus import Api, Resource
@@ -78,7 +78,8 @@ class Dataset(Resource):
         except DoesNotExist:
             return {"error": "no such dataset"}, 404
 
-    @use_args({"situation": fields.Integer(required=True), "entry": fields.Dict(keys=fields.Str, values=fields.Float, required=True)})
+    @use_args({"situation": fields.Integer(required=True),
+               "entry": fields.Dict(keys=fields.Str, values=fields.Float, required=True)})
     def post(self, args, name):
         try:
             dataset_meta = DatasetMeta.objects.raw({"_id": name})
@@ -107,9 +108,3 @@ class Dataset(Resource):
             return deleted_meta, 200
         except DoesNotExist:
             return {"error": "no such dataset"}, 404
-
-
-@parser.error_handler
-def handle_request_parsing_error(err, req, schema, *, error_status_code, error_headers):
-    logging.error(err, error_headers)
-    abort(error_status_code, errors=err.messages)

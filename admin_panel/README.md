@@ -55,10 +55,6 @@ Docker images for this application are available for the following architectures
 ### As part of the moody front architecture
 
 **Refer to what is written in the same section of the gateway README.**
- 
-**N.B.** The service monitor and the actuator server automatic update features may not work on arch32v7 devices because of a bug in the socketio library currently in use in the gateway app.
-
-Since one of the target device for hosting the front architecture is the Raspberry Pi, which has a 32-bit OS as his stable OS, it's recommended to use the 64-bit Raspberry Pi OS for the time being.
 
 ## Navigation
 

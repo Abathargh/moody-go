@@ -47,10 +47,12 @@ func HttpListenAndServer(port string) *http.Server {
 	router.HandleFunc("/situation", addTrailing)
 	router.HandleFunc("/service", addTrailing)
 	router.HandleFunc("/dataset", forwardToApiGW)
+	subrouter := router.PathPrefix("/dataset").Subrouter()
+	subrouter.HandleFunc("/", forwardToApiGW)
+	subrouter.HandleFunc("/{[0-9]*}", forwardToApiGW)
 
 	router.HandleFunc("/situation/{[0-9]*}", forwardToApiGW)
 	router.HandleFunc("/service/{[0-9]*}", forwardToApiGW)
-	router.HandleFunc("/dataset/{[0-9]*}", forwardToApiGW)
 
 	// Internal Gateway endpoints
 	router.HandleFunc("/neural_state", neuralStateMux)
