@@ -18,11 +18,7 @@ services:
     restart: always
     volumes:
       - ./gateway/data:/data
-    networks:
-      - mqtt
-      - nginx-front
-    ports:
-      - 7000:7000
+    network_mode: host
     depends_on:
       - moody-broker
       - moody-api-gw
