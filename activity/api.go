@@ -3,36 +3,19 @@ package main
 import (
 	"bufio"
 	"errors"
-	"gateway/communication"
-	"github.com/gorilla/mux"
 	"log"
 	"net"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func HttpListenAndServer(port string) *http.Server {
 	router := mux.NewRouter()
-
-	// These are directly forwarded to the API GW
-	router.HandleFunc("/situation", forwardToApiGW)
-	router.HandleFunc("/service", forwardToApiGW)
-	router.HandleFunc("/dataset", forwardToApiGW)
-	subrouter := router.PathPrefix("/dataset").Subrouter()
-	subrouter.HandleFunc("/", forwardToApiGW)
-	subrouter.HandleFunc("/{[0-9]*}", forwardToApiGW)
-
-	router.HandleFunc("/situation/{[0-9]*}", forwardToApiGW)
-	router.HandleFunc("/service/{[0-9]*}", forwardToApiGW)
-
-	// Internal Gateway endpoints
-	router.HandleFunc("/neural_state", neuralStateMux)
-	router.HandleFunc("/actuator_mode", actuatorModeMux)
-	router.HandleFunc("/actuators", actuatorMux)
-	router.HandleFunc("/sensor_service", serviceMux)
-	router.HandleFunc("/data_table", tableMux)
-	router.HandleFunc("/current_situation", situationMux)
-	router.HandleFunc("/service_ws", communication.ServeServiceWS)
-	router.HandleFunc("/actuator_ws", communication.ServeActuatorWS)
+	router.HandleFunc("/situation", SituationsMux)
+	router.HandleFunc("/situation/{id}", SituationMux)
+	router.HandleFunc("/service", ServicesMux)
+	router.HandleFunc("/service/{id}", ServiceMux)
 	router.Use(allowAllCorsMiddleware)
 	router.Use(logRequestResponseMiddleWare)
 	server := &http.Server{Addr: port, Handler: router}
@@ -68,74 +51,52 @@ func logRequestResponseMiddleWare(h http.Handler) http.Handler {
 	})
 }
 
-func neuralStateMux(w http.ResponseWriter, r *http.Request) {
+// Get all the Services or add one
+func ServicesMux(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		getNeuralState(w, r)
-	case http.MethodPut:
-		setNeuralState(w, r)
+		getServices(w, r)
+	case http.MethodPost:
+		postService(w, r)
 	case http.MethodOptions:
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func actuatorModeMux(w http.ResponseWriter, r *http.Request) {
+// Get/delete a situation or patch it to activate it
+func ServiceMux(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		getActuatorMode(w, r)
-	case http.MethodPost:
-		setActuatorMode(w, r)
-	case http.MethodOptions:
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-	}
-}
-
-func actuatorMux(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		getActuators(w, r)
-	case http.MethodPost:
-		addMapping(w, r)
+		getService(w, r)
 	case http.MethodDelete:
-		deleteMappings(w, r)
+		deleteService(w, r)
 	case http.MethodOptions:
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func serviceMux(w http.ResponseWriter, r *http.Request) {
+// Get all the situations or add one
+func SituationsMux(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case http.MethodPost:
-		activateService(w, r)
 	case http.MethodGet:
-		getActivatedServices(w, r)
-	case http.MethodDelete:
-		deactivateService(w, r)
+		getSituations(w, r)
+	case http.MethodPost:
+		postSituation(w, r)
 	case http.MethodOptions:
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func situationMux(w http.ResponseWriter, r *http.Request) {
+// Get/delete a situation or patch it to activate it
+func SituationMux(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case http.MethodPut:
-		setSituation(w, r)
 	case http.MethodGet:
 		getSituation(w, r)
-	case http.MethodOptions:
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-	}
-}
-
-func tableMux(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		getDataTable(w, r)
+	case http.MethodDelete:
+		deleteSituation(w, r)
 	case http.MethodOptions:
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)

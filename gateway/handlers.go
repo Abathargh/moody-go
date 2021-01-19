@@ -11,13 +11,6 @@ import (
 	"strconv"
 )
 
-// Add a trailing slash to solve a conflict with the API GW endpoints
-// TODO solve more elegantly
-func addTrailing(w http.ResponseWriter, r *http.Request) {
-	r.URL.Path = fmt.Sprintf("%s/", r.URL.Path)
-	forwardToApiGW(w, r)
-}
-
 // Forwards incoming requests that need to query an external service to the API GW
 func forwardToApiGW(w http.ResponseWriter, r *http.Request) {
 	url := communication.ApiGatewayAddress

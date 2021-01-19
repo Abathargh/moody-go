@@ -67,8 +67,8 @@ services:
     ports:
       - 8080:80
     depends_on:
+      - moody-activity
       - moody-dataset
-      - moody-service
 
   moody-dataset:
     build: ./dataset
@@ -79,17 +79,8 @@ services:
     depends_on:
       - moody-mongo
 
-  moody-service:
-    build: ./service
-    restart: always
-    networks:
-      - nginx-back
-      - postgres
-    depends_on:
-      - moody-postgres
-
-  moody-situation:
-    build: ./situation
+  moody-activity:
+    build: ./activity
     restart: always
     networks:
       - nginx-back

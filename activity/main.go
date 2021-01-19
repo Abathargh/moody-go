@@ -1,12 +1,12 @@
 package main
 
 import (
+	"activity/models"
 	"context"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"service/model"
 	"syscall"
 
 	"github.com/jinzhu/gorm"
@@ -41,7 +41,7 @@ func main() {
 			conf.DbHost, conf.DbPort, conf.DbUser, conf.DbName, conf.DbPass)
 		db, err := gorm.Open(dbDialect, postgresConn)
 		if err == nil {
-			model.DB = db
+			models.DB = db
 			break
 		}
 		attempt += 1
@@ -59,7 +59,7 @@ func main() {
 	if err := server.Shutdown(context.TODO()); err != nil {
 		log.Fatal(err)
 	}
-	if err := model.DB.Close(); err != nil {
+	if err := models.DB.Close(); err != nil {
 		log.Println("an error occurred while attempting to close the models connection")
 		log.Fatal(err)
 	}

@@ -8,12 +8,12 @@ WORKDIR /app
 COPY . .
 
 RUN go mod download
-RUN go build -o moody-service .
+RUN go build -o moody-activity .
 
 FROM scratch
 
-COPY --from=builder /app/moody-service /app/moody-service
+COPY --from=builder /app/moody-activity /app/moody-activity
 COPY conf.json .
 
 EXPOSE 80
-ENTRYPOINT ["/app/moody-service"]
+ENTRYPOINT ["/app/moody-activity"]

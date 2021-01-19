@@ -2,6 +2,7 @@ from webargs.flaskparser import use_args
 from webargs import fields
 
 from flask_restplus import Api, Resource
+from flask_cors import CORS
 from flask import Flask
 
 from pymodm.errors import DoesNotExist
@@ -15,6 +16,7 @@ from .neural import NeuralInterface
 __all__ = ["app"]
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 classifier = NeuralInterface()
