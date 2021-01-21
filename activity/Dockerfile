@@ -12,8 +12,7 @@ RUN go build -o moody-activity .
 
 FROM scratch
 
-COPY --from=builder /app/moody-activity /app/moody-activity
-COPY conf.json .
+COPY --from=builder /app/moody-activity /
 
 EXPOSE 80
-ENTRYPOINT ["/app/moody-activity"]
+ENTRYPOINT ["/moody-activity"]

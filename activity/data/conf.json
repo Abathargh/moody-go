@@ -1,6 +1,6 @@
 {
   "server_port": ":80",
-  "db_host": "moody-postgres",
+  "db_host": "moody-activity-db",
   "db_port": 5432,
   "db_user": "postgres",
   "db_pass": "password",
