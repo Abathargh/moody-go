@@ -33,6 +33,17 @@ services:
     depends_on:
       - moody-gateway
 
+  moody-activity:
+    build: ./activity
+    restart: always
+    networks:
+      - nginx-back
+      - postgres
+    volumes:
+      - ./activity/data:/data
+    depends_on:
+      - moody-activity-db
+
   moody-activity-db:
     build: ./activity/activity_pg
     restart: always
@@ -44,6 +55,15 @@ services:
       - 5432:5432
     volumes:
       - activity-pg:/var/lib/postgresql/data
+
+  moody-dataset:
+    build: ./dataset
+    restart: always
+    networks:
+      - nginx-back
+      - mongo
+    depends_on:
+      - moody-dataset-db
 
   moody-dataset-db:
     image: mongo
@@ -68,26 +88,6 @@ services:
     depends_on:
       - moody-activity
       - moody-dataset
-
-  moody-dataset:
-    build: ./dataset
-    restart: always
-    networks:
-      - nginx-back
-      - mongo
-    depends_on:
-      - moody-dataset-db
-
-  moody-activity:
-    build: ./activity
-    restart: always
-    networks:
-      - nginx-back
-      - postgres
-    volumes:
-      - ./activity/data:/data
-    depends_on:
-      - moody-activity-db
 
 volumes:
   activity-pg:

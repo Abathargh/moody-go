@@ -2,6 +2,12 @@ FROM python:3.8-slim-buster
 
 COPY . /usr/src/neural
 WORKDIR /usr/src/neural
+RUN if [ $(uname -m) = "aarch64" ]; then \
+        apt-get -y update && apt-get -y install wget libgomp1 && \
+        wget https://raw.githubusercontent.com/abathargh/python3-arm-wheels/master/wheels/scikit-learn/python3.8/scikit_learn-1.0.dev0-cp38-cp38-linux_aarch64.whl && \
+        pip3 install scipy scikit_learn-1.0.dev0-cp38-cp38-linux_aarch64.whl && apt-get -y remove wget && \
+        apt-get -y autoremove; \
+    fi
 RUN pip3 install -r requirements.txt
 EXPOSE 80
 

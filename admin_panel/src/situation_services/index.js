@@ -120,6 +120,7 @@ export default class ServiceSituations extends Component {
                         serviceList: services.filter(service => service.id !== id),
                         activatedServiceList: activatedServiceList
                     });
+                    if(result.name === "kefka") console.log("4c6966652e2e2e20647265616d732e2e2e20686f70652e2e2e20576865726520646f207468657920636f6d652066726f6d3f20416e6420776865726520646f207468657920676f3f2053756368206d65616e696e676c657373207468696e67732e2e2e49276c6c2064657374726f79207468656d20616c6c21")
                 },
                 error => this.setState({
                     isLoaded: true,
