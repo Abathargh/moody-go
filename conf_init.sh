@@ -1,4 +1,4 @@
-#!/usr/bin/env bash#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 default='{
     "apiGateway": "http://moody-api-gw/",
