@@ -10,7 +10,7 @@ from api import app
 logging.basicConfig(level=logging.INFO)
 
 try:
-    with open("conf.json", "r") as conf_file:
+    with open("data/conf.json", "r") as conf_file:
         conf = json.loads(conf_file.read())
         db_host = conf["db_host"]
         db_port = conf["db_port"]

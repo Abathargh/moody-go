@@ -17,7 +17,7 @@ RUN arch=$(uname -m); \
         fi; \
         apt-get -y remove wget && apt-get -y autoremove; rm -f *.whl; \
     fi
-RUN pip3 install -r requirements.txt
-EXPOSE 80
+RUN pip3 install -r requirements.txt && sh conf.sh
 
-CMD ["gunicorn", "-b", "0.0.0.0:80", "app:app"]
+EXPOSE 80
+CMD ["gunicorn", "-b", "80", "app:app"]

@@ -13,6 +13,9 @@ RUN go build -o moody-activity .
 FROM scratch
 
 COPY --from=builder /app/moody-activity /
+COPY --from=builder /app/conf.sh /
+
+RUN sh conf.sh && rm -f conf.sh
 
 EXPOSE 80
 ENTRYPOINT ["/moody-activity"]
