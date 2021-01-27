@@ -2,7 +2,7 @@ version: "3"
 
 services:
   moody-activity:
-    build: abathargh/moody-go-activity
+    image: abathargh/moody-go-activity
     restart: always
     networks:
       - nginx-back
@@ -11,7 +11,7 @@ services:
       - moody-activity-db
 
   moody-activity-db:
-    build: abathargh/moody-go-activity_pg
+    image: abathargh/moody-go-activity_pg
     restart: always
     networks:
       - postgres
@@ -21,7 +21,7 @@ services:
       - activity-pg:/var/lib/postgresql/data
 
   moody-dataset:
-    build: abathargh/moody-dataset
+    image: abathargh/moody-dataset
     restart: always
     networks:
       - nginx-back
