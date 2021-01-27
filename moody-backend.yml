@@ -21,7 +21,7 @@ services:
       - activity-pg:/var/lib/postgresql/data
 
   moody-dataset:
-    image: abathargh/moody-dataset
+    image: abathargh/moody-go-dataset
     restart: always
     networks:
       - nginx-back
@@ -60,7 +60,6 @@ volumes:
     external: false
 
 networks:
-  mqtt:
   nginx-front:
   nginx-back:
   postgres:

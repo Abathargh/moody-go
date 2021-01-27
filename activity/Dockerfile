@@ -9,13 +9,12 @@ COPY . .
 
 RUN go mod download
 RUN go build -o moody-activity .
+RUN sh conf.sh
 
 FROM scratch
 
 COPY --from=builder /app/moody-activity /
-COPY --from=builder /app/conf.sh /
-
-RUN sh conf.sh && rm -f conf.sh
+COPY --from=builder /app/data/ /data
 
 EXPOSE 80
 ENTRYPOINT ["/moody-activity"]

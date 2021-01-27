@@ -20,4 +20,4 @@ RUN arch=$(uname -m); \
 RUN pip3 install -r requirements.txt && sh conf.sh
 
 EXPOSE 80
-CMD ["gunicorn", "-b", "80", "app:app"]
+CMD ["gunicorn", "-b", ":80", "app:app"]
