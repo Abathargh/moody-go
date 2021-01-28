@@ -17,7 +17,11 @@ RUN arch=$(uname -m); \
         fi; \
         apt-get -y remove wget && apt-get -y autoremove; rm -f *.whl; \
     fi
-RUN pip3 install -r requirements.txt && sh conf.sh
+RUN pip3 install -r requirements.txt && sh conf.sh && apt-get -y update && \
+    apt-get -y install git && git clone https://github.com/vishnubob/wait-for-it && \
+    mv ./wait-for-it/wait-for-it.sh . && rm -rf wait-for-it && apt-get -y remove git && \
+    apt-get -y autoremove && [ -z DB_PORT ] && DB_PORT=27017
+
 
 EXPOSE 80
-CMD ["gunicorn", "-b", ":80", "app:app"]
+CMD ["./wait-for-it", "-p", "$DB_PORT", "--", "gunicorn", "-b", ":80", "app:app"]
