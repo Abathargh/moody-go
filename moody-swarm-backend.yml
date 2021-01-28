@@ -1,57 +1,63 @@
-version: "3"
+version: "3.4"
 
 services:
   moody-activity:
     image: abathargh/moody-go-activity
-    restart: always
     networks:
       - nginx-back
       - postgres
+    ports:
+      - 8001:80
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 2
+        delay: 10s
+        order: stop-first
     depends_on:
       - moody-activity-db
 
   moody-activity-db:
     image: abathargh/moody-go-activity_pg
-    restart: always
     networks:
       - postgres
-    ports:
-      - 5432:5432
     volumes:
       - activity-pg:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
 
   moody-dataset:
     image: abathargh/moody-go-dataset
-    restart: always
     networks:
       - nginx-back
       - mongo
+    ports:
+      - 8002:80
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 2
+        delay: 10s
+        order: stop-first
     depends_on:
       - moody-dataset-db
 
   moody-dataset-db:
     image: mongo
-    restart: always
     networks:
       - mongo
-    ports:
-      - 27017:27017
     volumes:
       - dataset-mongo:/data/db
-
-  moody-api-gw:
-    image: nginx:latest
-    restart: always
-    volumes:
-      - ./api_gateway/default.conf:/etc/nginx/conf.d/default.conf
-    networks:
-      - nginx-front
-      - nginx-back
-    ports:
-      - 8080:80
-    depends_on:
-      - moody-activity
-      - moody-dataset
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
 
 volumes:
   activity-pg:
@@ -61,6 +67,10 @@ volumes:
 
 networks:
   nginx-front:
+    driver: overlay
   nginx-back:
+    driver: overlay
   postgres:
+    driver: overlay
   mongo:
+    driver: overlay
