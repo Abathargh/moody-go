@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -45,6 +46,7 @@ func main() {
 			break
 		}
 		attempt += 1
+		time.Sleep(15 * time.Second)
 	}
 
 	if attempt == retries {

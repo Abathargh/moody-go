@@ -1,7 +1,9 @@
 # This app is started through gunicorn, hence the missing main
 import logging
+import socket
 import pymodm
 import json
+import sys
 
 from api import app
 
@@ -21,6 +23,24 @@ except FileNotFoundError:
 except KeyError:
     logging.error(
         "There's an error in your dataset.conf syntax, expected server_addr and server_port fields")
+
+
+# Wait for the db service to be up and running
+
+attempt = 0
+timeout = 15
+max_attempts = 5
+checking_db = True
+
+while checking_db:
+    try:
+        with socket.create_connection((db_host, db_port), timeout=timeout):
+            checking_db = False
+    except OSError:
+        attempt += 1
+        if attempt > max_attempts:
+            logging.error("The database service is unreachable")
+            sys.exit(1)
 
 
 pymodm.connect("mongodb://{}:{}/{}".format(db_host, db_port, db_name))
