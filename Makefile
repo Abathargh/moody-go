@@ -1,8 +1,13 @@
 build-front :
 	(cd gateway; make gateway)
 	(cd admin_panel; make build)
-	./conf_init.sh
-	./ca_gen.sh
+	mkdir -p bin/data
+	cp -r gateway/data bin/
+	mv gateway/gateway bin/
+	mv admin_panel/build bin/
+
+clean-front :
+	rm -rf bin/
 
 run-front :
 	@mosquitto -c ./broker/mosquitto.conf -d &> /dev/null
@@ -23,6 +28,7 @@ stop-dev :
 	-(kill -INT $$(cat pid.tmp)) && rm pid.tmp
 
 .PHONY : build-front
+.PHONY : clean-front
 .PHONY : run-front
 .PHONY : stop-front
 .PHONY : run-dev
