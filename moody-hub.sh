@@ -78,7 +78,7 @@ npm_check=$(command -v npm)
 # run everything and save logs
 
 trap 'kill $(jobs -p)' SIGINT
-mosquitto -c bin/broker/mosquitto.conf -v > bin/log/mosquitto.log 2> bin/log/mosquitto.log &
+mosquitto -c bin/broker/mosquitto.conf -v 2>&1 | tee -a log/mosquitto.log &
 serve -l 3000 -s bin/build > /dev/null 2> /dev/null &
 
 if [ -z $background ]; then
