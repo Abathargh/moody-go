@@ -13,11 +13,11 @@ import (
 
 // Forwards incoming requests that need to query an external service to the API GW
 func forwardToApiGW(w http.ResponseWriter, r *http.Request) {
-	url := communication.ApiGatewayAddress
-	url.Path = r.URL.Path
+	gwAddr := communication.ApiGatewayAddress
+	gwAddr.Path = r.URL.Path
 	w.Header().Set("Content-Type", "application/json")
 
-	newReq, err := http.NewRequest(r.Method, url.String(), r.Body)
+	newReq, err := http.NewRequest(r.Method, gwAddr.String(), r.Body)
 	if err != nil {
 		log.Println(err)
 		models.RespondWithError(w, http.StatusInternalServerError, "server error")
@@ -38,24 +38,24 @@ func forwardToApiGW(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
+	_, _ = buf.ReadFrom(resp.Body)
 	w.WriteHeader(resp.StatusCode)
-	w.Write(buf.Bytes())
+	_, _ = w.Write(buf.Bytes())
 }
 
 // [GET] /neural_state
 // returns a view of the dataset state of the app, containing information about
 // the dataset engine state and the current dataset in use
-func getNeuralState(w http.ResponseWriter, r *http.Request) {
+func getNeuralState(w http.ResponseWriter, _ *http.Request) {
 	state := communication.NeuralState
 	w.WriteHeader(http.StatusOK)
 	models.MustEncode(w, state)
 }
 
 func DatasetKeysIfExists(state models.NeuralState) ([]string, error) {
-	url := communication.ApiGatewayAddress
-	url.Path = fmt.Sprintf("/dataset/%s", state.Dataset)
-	resp, err := http.Get(url.String())
+	gwAddr := communication.ApiGatewayAddress
+	gwAddr.Path = fmt.Sprintf("/dataset/%s", state.Dataset)
+	resp, err := http.Get(gwAddr.String())
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func setNeuralState(w http.ResponseWriter, r *http.Request) {
 
 // [GET] /actuator_mode
 // returns the current actuator mode
-func getActuatorMode(w http.ResponseWriter, r *http.Request) {
+func getActuatorMode(w http.ResponseWriter, _ *http.Request) {
 	resp := models.ActuatorState{Mode: communication.ActuatorMode}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -153,8 +153,8 @@ func setActuatorMode(w http.ResponseWriter, r *http.Request) {
 
 // [GET] /actuators
 // returns a list of the connected actuators in server mode, along with their mappings
-func getActuators(w http.ResponseWriter, r *http.Request) {
-	actuators := []models.Actuator{}
+func getActuators(w http.ResponseWriter, _ *http.Request) {
+	var actuators []models.Actuator
 
 	if !communication.ActuatorIPs.Empty() {
 		actuatorServerList := communication.ActuatorIPs.AsSlice()
@@ -258,9 +258,9 @@ func activateService(w http.ResponseWriter, r *http.Request) {
 		models.RespondWithError(w, http.StatusUnprocessableEntity, "bad syntax")
 		return
 	}
-	url := communication.ApiGatewayAddress
-	url.Path = fmt.Sprintf("/service/%d", servReq.Service)
-	resp, err := http.Get(url.String())
+	gwAddr := communication.ApiGatewayAddress
+	gwAddr.Path = fmt.Sprintf("/service/%d", servReq.Service)
+	resp, err := http.Get(gwAddr.String())
 	if err != nil || resp.StatusCode == http.StatusInternalServerError {
 		models.RespondWithError(w, http.StatusInternalServerError, "server error")
 		return
@@ -320,9 +320,9 @@ func setSituation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := communication.ApiGatewayAddress
-	url.Path = fmt.Sprintf("/situation/%d", situationRequest.SituationId)
-	resp, err := http.Get(url.String())
+	gwAddr := communication.ApiGatewayAddress
+	gwAddr.Path = fmt.Sprintf("/situation/%d", situationRequest.SituationId)
+	resp, err := http.Get(gwAddr.String())
 	if err != nil || resp.StatusCode == http.StatusInternalServerError {
 		models.RespondWithError(w, http.StatusInternalServerError, "server error")
 		return
@@ -347,7 +347,7 @@ func setSituation(w http.ResponseWriter, r *http.Request) {
 
 // [GET] /situation
 // gets the value of the current situation
-func getSituation(w http.ResponseWriter, r *http.Request) {
+func getSituation(w http.ResponseWriter, _ *http.Request) {
 	var isSet bool
 	if communication.Situation == nil {
 		isSet = false
