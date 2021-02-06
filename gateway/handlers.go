@@ -11,17 +11,12 @@ import (
 	"strconv"
 )
 
-// Forwards incoming requests that need to query an external service to the API GW
-func forwardToApiGW(w http.ResponseWriter, r *http.Request) {
-	url := communication.ApiGatewayAddress
-	url.Path = r.URL.Path
-	w.Header().Set("Content-Type", "application/json")
-
-	newReq, err := http.NewRequest(r.Method, url.String(), r.Body)
+func fwdRequest(r *http.Request) (*http.Response, error) {
+	gwAddr := communication.ApiGatewayAddress
+	gwAddr.Path = r.URL.Path
+	newReq, err := http.NewRequest(r.Method, gwAddr.String(), r.Body)
 	if err != nil {
-		log.Println(err)
-		models.RespondWithError(w, http.StatusInternalServerError, "server error")
-		return
+		return nil, err
 	}
 	newReq.Header.Set("Host", r.Host)
 	newReq.Header.Set("X-Forwarded-For", r.RemoteAddr)
@@ -31,16 +26,48 @@ func forwardToApiGW(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	client := &http.Client{}
-	resp, err := client.Do(newReq)
-	if err != nil {
-		log.Println(err)
-		models.RespondWithError(w, http.StatusInternalServerError, err.Error())
+	resp, rErr := client.Do(newReq)
+	if rErr != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Forwards incoming requests that need to query an external service to the API GW
+func forwardToApiGW(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	// check local cache first, if the values is not present, fetch from the server
+	jsonReq, jErr := AsJson(&r.Body)
+	if jErr != nil {
+		log.Println(jErr)
+		models.RespondWithError(w, http.StatusInternalServerError, "server error")
 		return
 	}
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
+	if cachedVal, cachedExists := GetCachedValue(r.URL.Path, jsonReq); cachedExists {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(cachedVal))
+		return
+	}
+	// forward request to backend
+	resp, respErr := fwdRequest(r)
+	if respErr != nil {
+		log.Println(respErr)
+		models.RespondWithError(w, http.StatusInternalServerError, "server error")
+		return
+	}
+	// Copy reader and send one to the cache updater
+	jsonResp, rErr := AsJson(&resp.Body)
+	if rErr != nil {
+		log.Println(rErr)
+		models.RespondWithError(w, http.StatusInternalServerError, "server error")
+		return
+	}
+	UpdateCache(r.URL.Path, jsonReq, jsonResp)
+
+	var buff bytes.Buffer
+	_, _ = buff.ReadFrom(resp.Body)
 	w.WriteHeader(resp.StatusCode)
-	w.Write(buf.Bytes())
+	_, _ = w.Write(buff.Bytes())
 }
 
 // [GET] /neural_state
@@ -53,9 +80,9 @@ func getNeuralState(w http.ResponseWriter, r *http.Request) {
 }
 
 func DatasetKeysIfExists(state models.NeuralState) ([]string, error) {
-	url := communication.ApiGatewayAddress
-	url.Path = fmt.Sprintf("/dataset/%s", state.Dataset)
-	resp, err := http.Get(url.String())
+	gwAddr := communication.ApiGatewayAddress
+	gwAddr.Path = fmt.Sprintf("/dataset/%s", state.Dataset)
+	resp, err := http.Get(gwAddr.String())
 	if err != nil {
 		return nil, err
 	}
