@@ -154,7 +154,7 @@ func setActuatorMode(w http.ResponseWriter, r *http.Request) {
 // [GET] /actuators
 // returns a list of the connected actuators in server mode, along with their mappings
 func getActuators(w http.ResponseWriter, _ *http.Request) {
-	var actuators []models.Actuator
+	actuators := make([]models.Actuator, 0)
 
 	if !communication.ActuatorIPs.Empty() {
 		actuatorServerList := communication.ActuatorIPs.AsSlice()

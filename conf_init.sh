@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 default='{
-    "apiGateway": "http://moody-api-gw/",
+    "apiGateway": "http://localhost:8080/",
     "serverPort": ":7000",
     "mqtt": {
         "host": "'$HOSTNAME'",
