@@ -39,8 +39,6 @@ services:
     networks:
       - nginx-back
       - postgres
-    volumes:
-      - ./activity/data:/data
     depends_on:
       - moody-activity-db
 

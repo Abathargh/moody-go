@@ -6,6 +6,7 @@ default='{
     "mqtt": {
         "host": "'$HOSTNAME'",
         "port": 8883,
+        "tlsEnabled": true,
         "dataTopic": [
             "moody/service/+",
             "moody/actserver"
@@ -90,8 +91,17 @@ build_conf() {
     echo "Insert the path to the broker config directory (leave empty for the default one):"
     printf "> "
     read -r brokerDir
+    while true; do
+      echo "Do you want to use MQTT + TLS? (y/n):"
+      printf "> "
+      read -r tlsEnabled
+      if [ "$tlsEnabled" = "y" ] || [ "$tlsEnabled" = "n" ]; then
+        break
+      fi
+      echo "Unsupported option"
+    done
     if [ -z "$brokerDir" ]; then brokerDir="$(pwd)/broker"; fi
-
+    if [ "$tlsEnabled" = "y" ]; then tlsEnabled="true"; else tlsEnabled="false"; fi
 
 
     custom='{
@@ -100,6 +110,7 @@ build_conf() {
     "mqtt": {
         "host": "'$brokerAddr'",
         "port": '$brokerPort',
+        "tlsEnabled": '$tlsEnabled',
         "dataTopic": [
             "moody/service/+",
             "moody/actserver"
@@ -125,9 +136,23 @@ cafile '$brokerDir'/ca.crt
 certfile '$brokerDir'/server.crt
 keyfile '$brokerDir'/server.key'
 
+    custom_mosq_notls='autosave_interval 1800
+persistence true
+retained_persistence true
+persistence_file m2.db
+persistence_location '$brokerDir'
+connection_messages true
+log_timestamp true
+
+
+listener '$brokerPort''
     mkdir -p broker gateway/data/
     echo "$custom" > gateway/data/conf.json
-    echo "$custom_mosq" > broker/mosquitto.conf
+    if [ "$tlsEnabled" = "true" ]; then
+      echo "$custom_mosq" > broker/mosquitto.conf
+    else
+      echo "$custom_mosq_notls" > broker/mosquitto.conf
+    fi
 }
 
 if [ "$#" -gt 1 ]; then

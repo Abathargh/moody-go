@@ -41,10 +41,11 @@ type MQTTClient struct {
 
 // MQTTConfig stores the information contained in the mqtt section of the conf.json
 type MQTTConfig struct {
-	Host      string   `validate:"nonzero" json:"host"`
-	Port      int      `validate:"nonzero,min=1,max=65536" json:"port"`
-	DataTopic []string `validate:"nonzero,len=2" json:"dataTopic"` // 2 sub topic in the standard mqtt implementation
-	PubTopics []string `validate:"nonzero,len=2" json:"pubTopics"` // 2 pub topic in the standard mqtt implementation
+	Host       string   `validate:"nonzero" json:"host"`
+	Port       int      `validate:"nonzero,min=1,max=65536" json:"port"`
+	TlsEnabled bool     `json:"tlsEnabled"`
+	DataTopic  []string `validate:"nonzero,len=2" json:"dataTopic"` // 2 sub topic in the standard mqtt implementation
+	PubTopics  []string `validate:"nonzero,len=2" json:"pubTopics"` // 2 pub topic in the standard mqtt implementation
 }
 
 // Initializes the MQTTClient, for now we don't use a singleton in case in the future there's the need to
@@ -77,10 +78,15 @@ func (c *MQTTClient) Init(conf interface{}) error {
 		log.Println("wrong values for one or more fields in the mqtt section of the config file")
 		return err
 	}
+
+	protocol := "tcp"
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tls://%v:%v", c.config.Host, c.config.Port))
+	if c.config.TlsEnabled {
+		protocol = "tls"
+		opts.SetTLSConfig(newTLSConfig())
+	}
+	opts.AddBroker(fmt.Sprintf("%v://%v:%v", protocol, c.config.Host, c.config.Port))
 	opts.SetPingTimeout(pingTimeout)
-	opts.SetTLSConfig(newTLSConfig())
 	opts.KeepAlive = 0
 
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
