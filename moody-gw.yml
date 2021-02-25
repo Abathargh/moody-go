@@ -2,7 +2,7 @@ version: "3"
 
 services:
   moody-broker:
-    image: eclipse-mosquitto
+    image: eclipse-mosquitto:1.6.12
     restart: always
     networks:
       - mqtt
