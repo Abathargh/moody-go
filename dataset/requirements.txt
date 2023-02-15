@@ -1,4 +1,4 @@
-werkzeug==0.16.1
+werkzeug==2.2.3
 pymongo==3.10.1
 pymodm==0.4.3
 flask==1.1.1
